@@ -5,11 +5,11 @@ using Avalonia.ReactiveUI;
 using ObjectsRecognitionUI.ViewModels;
 using ReactiveUI;
 
-namespace ObjectsRecognitionUI;
+namespace ObjectsRecognitionUI.Views;
 
-public partial class ConfigurationWindow : ReactiveUserControl<ConfigurationWindowViewModel>
+public partial class ConfigurationView : ReactiveUserControl<ConfigurationViewModel>
 {
-    public ConfigurationWindow()
+    public ConfigurationView()
     {
         this.WhenActivated(disposables => { });
         AvaloniaXamlLoader.Load(this);

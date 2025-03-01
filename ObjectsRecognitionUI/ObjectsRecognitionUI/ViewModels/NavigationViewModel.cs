@@ -38,7 +38,7 @@ namespace ObjectsRecognitionUI.ViewModels
         private void NavigateToConfiguration()
         {
             CheckDisposedCancelletionToken();
-            Router.Navigate.Execute(_serviceProvider.GetRequiredService<ConfigurationWindowViewModel>());
+            Router.Navigate.Execute(_serviceProvider.GetRequiredService<ConfigurationViewModel>());
         }
 
         private void CheckDisposedCancelletionToken()

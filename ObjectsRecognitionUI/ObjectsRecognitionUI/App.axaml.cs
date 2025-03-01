@@ -7,8 +7,8 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using ObjectsRecognitionUI.Views;
-using System.IO;
-using Microsoft.Extensions.Configuration;
+using ObjectsRecognitionUI.Services;
+using Avalonia.Controls;
 
 namespace ObjectsRecognitionUI
 {
@@ -27,11 +27,18 @@ namespace ObjectsRecognitionUI
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
 
-                var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                        .Build();
+                IServiceCollection servicesCollection = new ServiceCollection();
 
-                ServiceProvider servicesProvider = ServicesRegister();
+                servicesCollection.AddSingleton<IScreen, IScreenRealization>();
+
+                servicesCollection.AddSingleton<NavigationViewModel>();
+                servicesCollection.AddSingleton<MainViewModel>();
+                servicesCollection.AddSingleton<ConfigurationViewModel>();
+
+                servicesCollection.AddTransient(x => new FilesService(desktop.MainWindow));
+
+                ServiceProvider servicesProvider = servicesCollection.BuildServiceProvider();
+
                 desktop.MainWindow = new NavigationWindow
                 {
                     DataContext = servicesProvider.GetService<NavigationViewModel>()
@@ -39,19 +46,6 @@ namespace ObjectsRecognitionUI
             }
 
             base.OnFrameworkInitializationCompleted();
-        }
-
-        private ServiceProvider ServicesRegister()
-        {
-            IServiceCollection servicesProvider = new ServiceCollection();
-
-            servicesProvider.AddSingleton<IScreen, IScreenRealization>();
-
-            servicesProvider.AddSingleton<NavigationViewModel>();
-            servicesProvider.AddSingleton<MainViewModel>();
-            servicesProvider.AddSingleton<ConfigurationWindowViewModel>();
-
-            return servicesProvider.BuildServiceProvider();
         }
 
         private void DisableAvaloniaDataAnnotationValidation()
