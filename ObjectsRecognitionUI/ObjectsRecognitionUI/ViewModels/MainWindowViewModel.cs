@@ -1,7 +1,6 @@
-﻿namespace ObjectsRecognitionUI.ViewModels
+﻿namespace ObjectsRecognitionUI.ViewModels;
+
+public partial class MainWindowViewModel : ViewModelBase
 {
-    public partial class MainWindowViewModel : ViewModelBase
-    {
-        public string Greeting { get; } = "Welcome to Avalonia!";
-    }
+    public string Greeting { get; } = "Welcome to Avalonia!";
 }

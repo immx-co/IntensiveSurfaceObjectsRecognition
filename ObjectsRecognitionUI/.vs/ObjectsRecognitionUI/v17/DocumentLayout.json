@@ -1,66 +1,145 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\",
+  "WorkspaceRootPath": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\mainwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
+      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|d:\\intensive\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\mainwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
       "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\views\\mainwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\viewmodels\\mainwindowviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|d:\\intensive\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\imageview.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\views\\imageview.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|d:\\intensive\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\imageview.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
+      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\views\\imageview.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|d:\\intensive\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\viewmodels\\mainwindowviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\viewmodels\\mainwindowviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|d:\\intensive\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\viewmodels\\imageviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\viewmodels\\imageviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
     {
-      "Orientation": 0,
+      "Orientation": 1,
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "DockedHeight": 200,
+          "SelectedChildIndex": 12,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{de1fc918-f32e-4dd7-a915-1792a051f26b}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:131:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:132:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:133:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:134:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": ".gitignore",
-              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\.gitignore",
-              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\.gitignore",
-              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\.gitignore",
-              "RelativeToolTip": "ObjectsRecognitionUI\\.gitignore",
-              "ViewState": "AQIAAEsBAAAAAAAAAAAQwFgBAAAIAAAA",
-              "Icon": "00000000-0000-0000-0000-000000000000.000000|iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAF8SURBVDhPjVNLTgJBEG1lwpoFB3GNK9fieA48hD8iwT/ihwgSDAIHgAGXXsEV18CNzL/LquqZdsYM6kteXqcy3fWqpmpNRBgOhyABBEgpAFVKPIMUcYzUyOU\u002BXM/b2qtU3vkSfRjjZTCAMAw1A2LwzdFoBPP5HNqdzuL27n4juibWI\u002BUshBA1DIkhEx9iEorFotgslQqGYbxxAGFEqt1MxmPWJLbLZdZ\u002Bv89q5PMFPiTR6z2zdaxR0fXA0XTBcVywkb4fwHXjRteecIDNQ7UmExVYAdPcxYaqclN46na5WenMKjtlVnTYwcXlVYaDqImW9beD5N/TeGy32QHXm6hZ03ZgiSQHp2fnWQ4oBmJqWSqwAqZpZjt4aLXAD4J0VqyZsmoubfB8H2r1eoaD6NXZ9HcHO\u002BSA3f4AjifXl8rItOETM8ckB9WTWpYD9RdeZ1PWVWAHWXPQaDb59f/w8LiqHeh1pvGkCaP6qB8yXusoxmuNZ7XmII4O9vGuEF86osuDYRkpYQAAAABJRU5ErkJggg==",
-              "WhenOpened": "2025-03-01T08:05:26.938Z",
+              "DocumentIndex": 4,
+              "Title": "ImageViewModel.cs",
+              "DocumentMoniker": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\ImageViewModel.cs",
+              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\ViewModels\\ImageViewModel.cs",
+              "ToolTip": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\ImageViewModel.cs",
+              "RelativeToolTip": "ObjectsRecognitionUI\\ViewModels\\ImageViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-01T09:35:57.238Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ImageView.axaml",
+              "DocumentMoniker": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ImageView.axaml",
+              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\ImageView.axaml",
+              "ToolTip": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ImageView.axaml",
+              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\ImageView.axaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-03-01T09:32:58.487Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "ImageView.axaml.cs",
+              "DocumentMoniker": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ImageView.axaml.cs",
+              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\ImageView.axaml.cs",
+              "ToolTip": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ImageView.axaml.cs",
+              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\ImageView.axaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-01T09:32:56.904Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "MainWindow.axaml",
-              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\MainWindow.axaml",
+              "DocumentMoniker": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\MainWindow.axaml",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\MainWindow.axaml",
-              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\MainWindow.axaml",
-              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\MainWindow.axaml",
+              "ToolTip": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\MainWindow.axaml*",
+              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\MainWindow.axaml*",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-03-01T08:03:48.239Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "MainWindowViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\MainWindowViewModel.cs",
+              "DocumentMoniker": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\MainWindowViewModel.cs",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\ViewModels\\MainWindowViewModel.cs",
-              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\MainWindowViewModel.cs",
+              "ToolTip": "D:\\Intensive\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\MainWindowViewModel.cs",
               "RelativeToolTip": "ObjectsRecognitionUI\\ViewModels\\MainWindowViewModel.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-01T08:03:46.384Z",
               "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             }
           ]
         }
