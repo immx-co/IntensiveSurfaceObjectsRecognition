@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace ObjectsRecognitionUI.ViewModels
 {
-    public class ConfigurationWindowViewModel : ReactiveObject, IRoutableViewModel
+    public class ConfigurationViewModel : ReactiveObject, IRoutableViewModel
     {
         #region Private Fields
         private string _connectionString;
@@ -29,7 +29,7 @@ namespace ObjectsRecognitionUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _url, value);
         }
 
-        public ConfigurationWindowViewModel(IScreen screen)
+        public ConfigurationViewModel(IScreen screen)
         {
             HostScreen = screen;
         }

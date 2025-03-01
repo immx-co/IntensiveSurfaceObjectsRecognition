@@ -33,7 +33,7 @@ namespace ObjectsRecognitionUI
 
                 servicesCollection.AddSingleton<NavigationViewModel>();
                 servicesCollection.AddSingleton<MainViewModel>();
-                servicesCollection.AddSingleton<ConfigurationWindowViewModel>();
+                servicesCollection.AddSingleton<ConfigurationViewModel>();
 
                 servicesCollection.AddTransient(x => new FilesService(desktop.MainWindow));
 

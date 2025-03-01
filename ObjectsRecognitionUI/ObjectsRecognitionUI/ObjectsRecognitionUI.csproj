@@ -28,4 +28,10 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
     <PackageReference Include="ReactiveUI" Version="20.1.63" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\ConfigurationView.axaml.cs">
+      <DependentUpon>ConfigurationView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

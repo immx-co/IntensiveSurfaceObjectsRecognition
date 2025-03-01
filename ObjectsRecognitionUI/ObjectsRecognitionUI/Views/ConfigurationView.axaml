@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		     xmlns:vm="using:ObjectsRecognitionUI.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="ObjectsRecognitionUI.Views.ConfigurationWindow"
-			 x:DataType="vm:ConfigurationWindowViewModel">
+             x:Class="ObjectsRecognitionUI.Views.ConfigurationView"
+			 x:DataType="vm:ConfigurationViewModel">
 
 	<Grid>
 		<StackPanel Width="400"
