@@ -1,1 +1,1 @@
-# IntensiveSurfaceObjectsRecognition
+# Intensive Surface Objects Recognition
