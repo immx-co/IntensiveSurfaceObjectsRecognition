@@ -1,4 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:rxui="http://reactiveui.net"
+		xmlns:app="clr-namespace:ObjectRecognitionUI"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ObjectsRecognitionUI.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,6 +10,10 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="ObjectsRecognitionUI">
+	<Window.Resources>
+		<StreamGeometry x:Key="chevron_left_regular">M31.8839 8.36612C32.372 8.85427 32.372 9.64573 31.8839 10.1339L18.0178 24L31.8839 37.8661C32.372 38.3543 32.372 39.1457 31.8839 39.6339C31.3957 40.122 30.6043 40.122 30.1161 39.6339L15.3661 24.8839C14.878 24.3957 14.878 23.6043 15.3661 23.1161L30.1161 8.36612C30.6043 7.87796 31.3957 7.87796 31.8839 8.36612Z</StreamGeometry>
+		<StreamGeometry x:Key="chevron_right_regular">M16.1161 39.6339C15.628 39.1457 15.628 38.3543 16.1161 37.8661L29.9822 24L16.1161 10.1339C15.628 9.64573 15.628 8.85427 16.1161 8.36612C16.6043 7.87796 17.3957 7.87796 17.8839 8.36612L32.6339 23.1161C33.122 23.6043 33.122 24.3957 32.6339 24.8839L17.8839 39.6339C17.3957 40.122 16.6043 40.122 16.1161 39.6339Z</StreamGeometry>
+	</Window.Resources>
    <Grid>
 		<StackPanel VerticalAlignment="Top" 
 					Orientation="Horizontal"
@@ -16,31 +22,12 @@
 					Margin="0 0 5 0"/>
 			<Button Content="Конфигурация"/>
 		</StackPanel>
-		<StackPanel HorizontalAlignment="Center"
-					VerticalAlignment="Center"
-					Orientation="Horizontal">
-			<Button Content="Назад"
-					Margin="0 0 5 0"/>
-			<Border Background="Gainsboro"
-					Width="450"
-					Height="300">
-				<Image MaxWidth="450"
-					   MaxHeight="350"
-					   RenderOptions.BitmapInterpolationMode="HighQuality"/>
-			</Border>
-			<Button Content="Вперед"
-					Margin="5 0 0 0"/>
-		</StackPanel>
-		<StackPanel Margin="10" Orientation="Horizontal"
-					VerticalAlignment="Bottom"
-					HorizontalAlignment="Center">
-			<Button Content="Отправить изображение"
-					Margin="0 0 5 0"/>
-			<Button Content="Отправить папку"
-					Margin="0 0 5 0"/>
-			<Button Content="Отправить видео"
-					Margin="0 0 5 0"/>
-			<Button Content="Подключиться"/>
+		<StackPanel>
+			<rxui:RoutedViewHost Router="{Binding Router}">
+				<rxui:RoutedViewHost.ViewLocator>
+					<app:AppViewLocator />
+				</rxui:RoutedViewHost.ViewLocator>
+			</rxui:RoutedViewHost>
 		</StackPanel>
 	</Grid>
 
