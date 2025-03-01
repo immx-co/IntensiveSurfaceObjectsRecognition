@@ -7,6 +7,8 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using ObjectsRecognitionUI.Views;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace ObjectsRecognitionUI
 {
@@ -24,6 +26,10 @@ namespace ObjectsRecognitionUI
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
+
+                var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                        .Build();
 
                 ServiceProvider servicesProvider = ServicesRegister();
                 desktop.MainWindow = new NavigationWindow

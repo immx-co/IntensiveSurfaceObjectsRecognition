@@ -25,6 +25,8 @@ namespace ObjectsRecognitionUI.ViewModels
 
             GoMainWindow = ReactiveCommand.Create(NavigateToMainWindow);
             GoConfiguration = ReactiveCommand.Create(NavigateToConfiguration);
+
+            Router.Navigate.Execute(_serviceProvider.GetRequiredService<MainViewModel>());
         }
 
         private void NavigateToMainWindow()
