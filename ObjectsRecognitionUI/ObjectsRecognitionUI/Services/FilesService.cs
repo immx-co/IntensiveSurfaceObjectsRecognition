@@ -11,19 +11,17 @@ namespace ObjectsRecognitionUI.Services;
 public class FilesService
 {
     #region Private Fields
-    private readonly Window _target;
+    
     #endregion
 
+    public Window? Target => App.Current?.CurrentWindow;
+
     #region Constructors
-    public FilesService(Window target)
-    {
-        _target = target;
-    }
     #endregion
 
     public async Task<IStorageFile?> OpenImageFileAsync()
     {
-        var files = await _target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+        var files = await Target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
         {
             Title = "Open Image File",
             FileTypeFilter = [FilePickerFileTypes.ImageAll],
@@ -33,3 +31,4 @@ public class FilesService
         return files.Count >= 1 ? files[0] : null;
     }
 }
+

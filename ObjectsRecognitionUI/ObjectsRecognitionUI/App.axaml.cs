@@ -14,6 +14,20 @@ namespace ObjectsRecognitionUI
 {
     public partial class App : Application
     {
+        public new static App? Current => Application.Current as App;
+
+        public Window? CurrentWindow
+        {
+            get
+            {
+                if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    return desktop.MainWindow;
+                }
+                else return null;
+            }
+        }
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -35,12 +49,12 @@ namespace ObjectsRecognitionUI
                 servicesCollection.AddSingleton<MainViewModel>();
                 servicesCollection.AddSingleton<ConfigurationViewModel>();
 
-                servicesCollection.AddTransient(x => new FilesService(desktop.MainWindow));
+                servicesCollection.AddTransient<FilesService>();
 
                 ServiceProvider servicesProvider = servicesCollection.BuildServiceProvider();
                 desktop.MainWindow = new NavigationWindow
                 {
-                    DataContext = servicesProvider.GetService<NavigationViewModel>()
+                    DataContext = servicesProvider.GetRequiredService<NavigationViewModel>()
                 };
             }
 
