@@ -12,5 +12,10 @@ namespace ObjectsRecognitionUI.ViewModels
 
         public CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         public string Greeting { get; } = "Welcome to Configuration!";
+
+        public ConfigurationWindowViewModel(IScreen screen)
+        {
+            HostScreen = screen;
+        }
     }
 }

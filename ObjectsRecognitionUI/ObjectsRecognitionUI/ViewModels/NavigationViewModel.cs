@@ -21,6 +21,7 @@ namespace ObjectsRecognitionUI.ViewModels
         public NavigationViewModel(IScreen screenRealization, IServiceProvider serviceProvider)
         {
             Router = screenRealization.Router;
+            _serviceProvider = serviceProvider;
 
             GoMainWindow = ReactiveCommand.Create(NavigateToMainWindow);
             GoConfiguration = ReactiveCommand.Create(NavigateToConfiguration);

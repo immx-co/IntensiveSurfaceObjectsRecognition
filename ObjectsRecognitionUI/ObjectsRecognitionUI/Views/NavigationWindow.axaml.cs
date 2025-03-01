@@ -6,7 +6,7 @@ using Avalonia.ReactiveUI;
 using ObjectsRecognitionUI.ViewModels;
 using ReactiveUI;
 
-namespace ObjectsRecognitionUI;
+namespace ObjectsRecognitionUI.Views;
 
 public partial class NavigationWindow : ReactiveWindow<NavigationViewModel>
 {

@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:vm="using:ObjectsRecognitionUI.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="ObjectsRecognitionUI.NavigationWindow"
+        x:Class="ObjectsRecognitionUI.Views.NavigationWindow"
         Title="Surface Objects Recognition Application"
 		MinHeight="500"
         MinWidth="1300"

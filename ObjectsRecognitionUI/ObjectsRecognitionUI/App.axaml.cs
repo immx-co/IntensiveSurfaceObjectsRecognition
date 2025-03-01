@@ -6,6 +6,7 @@ using ObjectsRecognitionUI.ViewModels;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using ObjectsRecognitionUI.Views;
 
 namespace ObjectsRecognitionUI
 {
@@ -27,7 +28,7 @@ namespace ObjectsRecognitionUI
                 ServiceProvider servicesProvider = ServicesRegister();
                 desktop.MainWindow = new NavigationWindow
                 {
-                    DataContext = servicesProvider.GetService<MainWindowViewModel>()
+                    DataContext = servicesProvider.GetService<NavigationViewModel>()
                 };
             }
 
