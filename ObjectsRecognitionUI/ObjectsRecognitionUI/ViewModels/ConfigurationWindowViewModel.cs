@@ -1,19 +1,19 @@
 ﻿using ReactiveUI;
-using System.Threading;
 using System;
+using System.Threading;
 
 namespace ObjectsRecognitionUI.ViewModels
 {
-    public class MainWindowViewModel : ReactiveObject, IRoutableViewModel
+    public class ConfigurationWindowViewModel : ReactiveObject, IRoutableViewModel
     {
         public IScreen HostScreen { get; }
 
         public string UrlPathSegment { get; } = Guid.NewGuid().ToString().Substring(0, 5);
 
         public CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        public string Greeting { get; } = "Welcome to Main Window!";
+        public string Greeting { get; } = "Welcome to Configuration!";
 
-        public MainWindowViewModel(IScreen screen)
+        public ConfigurationWindowViewModel(IScreen screen)
         {
             HostScreen = screen;
         }

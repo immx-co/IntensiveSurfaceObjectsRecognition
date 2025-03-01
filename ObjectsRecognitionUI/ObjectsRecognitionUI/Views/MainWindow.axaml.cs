@@ -1,13 +1,17 @@
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
+using ReactiveUI;
 using ObjectsRecognitionUI.ViewModels;
 
 namespace ObjectsRecognitionUI.Views
 {
-    public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
+    public partial class MainWindow : ReactiveUserControl<MainWindowViewModel>
     {
         public MainWindow()
         {
-            InitializeComponent();
+            this.WhenActivated(disposables => { });
+            AvaloniaXamlLoader.Load(this);
         }
     }
 }
