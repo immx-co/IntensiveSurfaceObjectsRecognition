@@ -3,6 +3,18 @@
   "WorkspaceRootPath": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\viewmodels\\navigationviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\viewmodels\\navigationviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\navigationwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
+      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\views\\navigationwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\navigationwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\views\\navigationwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\appviewlocator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\appviewlocator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -11,16 +23,8 @@
       "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\iscreenrealization.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\viewmodels\\navigationviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\viewmodels\\navigationviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\viewmodels\\mainwindowviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\viewmodels\\mainwindowviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\navigationwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
-      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\views\\navigationwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\viewmodels\\configurationwindowviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -41,10 +45,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\mainwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\views\\mainwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\views\\navigationwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|solutionrelative:objectsrecognitionui\\views\\navigationwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FF806B88-1802-46D4-8590-9F3152731350}|ObjectsRecognitionUI\\ObjectsRecognitionUI.csproj|c:\\users\\immx\\official\\intensivesurfaceobjectsrecognition\\objectsrecognitionui\\objectsrecognitionui\\app.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -70,42 +70,29 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "AppViewLocator.cs",
               "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\AppViewLocator.cs",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\AppViewLocator.cs",
               "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\AppViewLocator.cs",
               "RelativeToolTip": "ObjectsRecognitionUI\\AppViewLocator.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-01T12:07:11.448Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "NavigationViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\NavigationViewModel.cs",
-              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\ViewModels\\NavigationViewModel.cs",
-              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\NavigationViewModel.cs",
-              "RelativeToolTip": "ObjectsRecognitionUI\\ViewModels\\NavigationViewModel.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAAuAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-01T11:22:42.2Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "NavigationWindow.axaml",
               "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\NavigationWindow.axaml",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\NavigationWindow.axaml",
-              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\NavigationWindow.axaml",
-              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\NavigationWindow.axaml",
+              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\NavigationWindow.axaml*",
+              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\NavigationWindow.axaml*",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-03-01T11:08:21.337Z",
               "EditorCaption": ""
@@ -113,19 +100,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "ConfigurationWindow.axaml.cs",
-              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml.cs",
-              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml.cs",
-              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml.cs",
-              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-01T11:25:59.461Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
               "Title": "ConfigurationWindow.axaml",
               "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml",
@@ -137,7 +111,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "ConfigurationWindowViewModel.cs",
               "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\ConfigurationWindowViewModel.cs",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\ViewModels\\ConfigurationWindowViewModel.cs",
@@ -150,7 +124,46 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
+              "Title": "NavigationWindow.axaml.cs",
+              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\NavigationWindow.axaml.cs",
+              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\NavigationWindow.axaml.cs",
+              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\NavigationWindow.axaml.cs",
+              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\NavigationWindow.axaml.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-01T10:41:04.199Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "NavigationViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\NavigationViewModel.cs",
+              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\ViewModels\\NavigationViewModel.cs",
+              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\NavigationViewModel.cs",
+              "RelativeToolTip": "ObjectsRecognitionUI\\ViewModels\\NavigationViewModel.cs",
+              "ViewState": "AQIAABIAAAAAAAAAAAAowBwAAAArAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-01T11:22:42.2Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ConfigurationWindow.axaml.cs",
+              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml.cs",
+              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml.cs",
+              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml.cs",
+              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\ConfigurationWindow.axaml.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-01T11:25:59.461Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "IScreenRealization.cs",
               "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\IScreenRealization.cs",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\IScreenRealization.cs",
@@ -163,7 +176,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "MainWindowViewModel.cs",
               "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\ViewModels\\MainWindowViewModel.cs",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\ViewModels\\MainWindowViewModel.cs",
@@ -176,7 +189,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "MainWindow.axaml",
               "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\MainWindow.axaml",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\MainWindow.axaml",
@@ -188,7 +201,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "MainWindow.axaml.cs",
               "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\MainWindow.axaml.cs",
               "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\MainWindow.axaml.cs",
@@ -197,19 +210,6 @@
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-01T11:07:37.593Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "NavigationWindow.axaml.cs",
-              "DocumentMoniker": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\NavigationWindow.axaml.cs",
-              "RelativeDocumentMoniker": "ObjectsRecognitionUI\\Views\\NavigationWindow.axaml.cs",
-              "ToolTip": "C:\\Users\\immx\\official\\IntensiveSurfaceObjectsRecognition\\ObjectsRecognitionUI\\ObjectsRecognitionUI\\Views\\NavigationWindow.axaml.cs",
-              "RelativeToolTip": "ObjectsRecognitionUI\\Views\\NavigationWindow.axaml.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAFAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-01T10:41:04.199Z",
               "EditorCaption": ""
             },
             {

@@ -7,16 +7,17 @@
 		xmlns:vm="using:ObjectsRecognitionUI.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="ObjectsRecognitionUI.NavigationWindow"
-        Title="NavigationWindow"
+        Title="Surface Objects Recognition Application"
 		MinHeight="500"
         MinWidth="1300"
-		x:DataType="vm:NavigationViewModel">
+		x:DataType="vm:NavigationViewModel"
+		Icon="/Assets/avalonia-logo.ico">
 
 	<Border BorderBrush="Black"
-          BorderThickness="3"
-          CornerRadius="0"
-          Background="White"
-          PointerPressed="WindowPointerMoved">
+			BorderThickness="3"
+			CornerRadius="0"
+			Background="White"
+			PointerPressed="WindowPointerMoved">
 		<Grid>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
