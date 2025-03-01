@@ -42,7 +42,7 @@ namespace ObjectsRecognitionUI
             servicesProvider.AddSingleton<IScreen, IScreenRealization>();
 
             servicesProvider.AddSingleton<NavigationViewModel>();
-            servicesProvider.AddSingleton<MainWindowViewModel>();
+            servicesProvider.AddSingleton<MainViewModel>();
             servicesProvider.AddSingleton<ConfigurationWindowViewModel>();
 
             return servicesProvider.BuildServiceProvider();

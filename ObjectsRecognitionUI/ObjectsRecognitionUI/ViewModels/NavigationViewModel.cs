@@ -30,7 +30,7 @@ namespace ObjectsRecognitionUI.ViewModels
         private void NavigateToMainWindow()
         {
             CheckDisposedCancelletionToken();
-            Router.Navigate.Execute(_serviceProvider.GetRequiredService<MainWindowViewModel>());
+            Router.Navigate.Execute(_serviceProvider.GetRequiredService<MainViewModel>());
         }
 
         private void NavigateToConfiguration()
