@@ -25,6 +25,8 @@ namespace ObjectsRecognitionUI.ViewModels
 
             GoMainWindow = ReactiveCommand.Create(NavigateToMainWindow);
             GoConfiguration = ReactiveCommand.Create(NavigateToConfiguration);
+
+            NavigateToMainWindow();
         }
 
         private void NavigateToMainWindow()

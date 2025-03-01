@@ -4,9 +4,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		     xmlns:vm="using:ObjectsRecognitionUI.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="ObjectsRecognitionUI.ConfigurationWindow"
+             x:Class="ObjectsRecognitionUI.Views.ConfigurationWindow"
 			 x:DataType="vm:ConfigurationWindowViewModel">
 
-	<TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+	<Grid>
+		<StackPanel Width="400"
+					HorizontalAlignment="Left"
+					Margin="20">
+			<StackPanel Margin="0 0 0 10">
+				<Label Content="Строка подключения к базе данных:"/>
+				<TextBox Text="{Binding ConnectionString}"/>
+			</StackPanel>
+			<StackPanel>
+				<Label Content="URL нейросетевого сервиса:"/>
+				<TextBox Text="{Binding Url}"/>
+			</StackPanel>
+		</StackPanel>
+		<StackPanel VerticalAlignment="Bottom"
+					HorizontalAlignment="Right"
+					Margin="20">
+			<Button Content="Сохранить"/>
+		</StackPanel>
+	</Grid>
 	
 </UserControl>

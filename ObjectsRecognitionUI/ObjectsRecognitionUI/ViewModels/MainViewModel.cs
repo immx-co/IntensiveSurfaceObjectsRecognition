@@ -1,4 +1,7 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
+using ObjectsRecognitionUI.Services;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,6 +15,22 @@ namespace ObjectsRecognitionUI.ViewModels;
 
 public class MainViewModel : ReactiveObject, IRoutableViewModel
 {
+    #region Private Fields
+    private Bitmap? _currentImage;
+
+    private List<Bitmap?> _imageFilesBitmap = new();
+
+    private List<IStorageFile>? _imageFiles = new();
+
+    private FilesService _filesService;
+
+    private Bitmap? CurrentImage
+    {
+        get => _currentImage;
+        set => this.RaiseAndSetIfChanged(ref _currentImage, value);
+    }
+    #endregion
+
     #region View Model Settings
     public IScreen HostScreen { get; }
     public string UrlPathSegment { get; } = Guid.NewGuid().ToString().Substring(0, 5);
@@ -34,9 +53,24 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Constructors
-    public MainViewModel(IScreen screen)
+    public MainViewModel(IScreen screen, FilesService filesService)
     {
         HostScreen = screen;
+        _filesService = filesService;
+
+        SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
+    }
+    #endregion
+
+    #region Public Methods
+    private async Task OpenImageFile()
+    {
+        var file = await _filesService.OpenImageFileAsync();
+        if (file != null)
+        {
+            _imageFiles.Add(file);
+            _imageFilesBitmap.Add(new Bitmap(await file.OpenReadAsync()));
+        }
     }
     #endregion
 }

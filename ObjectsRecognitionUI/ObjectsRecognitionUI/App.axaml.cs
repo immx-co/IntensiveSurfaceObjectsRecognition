@@ -7,6 +7,8 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using ObjectsRecognitionUI.Views;
+using ObjectsRecognitionUI.Services;
+using Avalonia.Controls;
 
 namespace ObjectsRecognitionUI
 {
@@ -25,7 +27,17 @@ namespace ObjectsRecognitionUI
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
 
-                ServiceProvider servicesProvider = ServicesRegister();
+                IServiceCollection servicesCollection = new ServiceCollection();
+
+                servicesCollection.AddSingleton<IScreen, IScreenRealization>();
+
+                servicesCollection.AddSingleton<NavigationViewModel>();
+                servicesCollection.AddSingleton<MainViewModel>();
+                servicesCollection.AddSingleton<ConfigurationWindowViewModel>();
+
+                servicesCollection.AddTransient(x => new FilesService(desktop.MainWindow));
+
+                ServiceProvider servicesProvider = servicesCollection.BuildServiceProvider();
                 desktop.MainWindow = new NavigationWindow
                 {
                     DataContext = servicesProvider.GetService<NavigationViewModel>()
@@ -33,19 +45,6 @@ namespace ObjectsRecognitionUI
             }
 
             base.OnFrameworkInitializationCompleted();
-        }
-
-        private ServiceProvider ServicesRegister()
-        {
-            IServiceCollection servicesProvider = new ServiceCollection();
-
-            servicesProvider.AddSingleton<IScreen, IScreenRealization>();
-
-            servicesProvider.AddSingleton<NavigationViewModel>();
-            servicesProvider.AddSingleton<MainViewModel>();
-            servicesProvider.AddSingleton<ConfigurationWindowViewModel>();
-
-            return servicesProvider.BuildServiceProvider();
         }
 
         private void DisableAvaloniaDataAnnotationValidation()
