@@ -52,6 +52,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private AvaloniaList<RectItem> _rectItems;
 
+    private AvaloniaList<AvaloniaList<RectItem>> _rectItemsLists;
+
     private int _currentNumberOfImage;
     #endregion
 
@@ -128,16 +130,16 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             "Test Result2"
         };
 
-        ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealth);
-        SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
-        SendFolderCommand = ReactiveCommand.CreateFromTask(OpenFolder);
+        ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealthAsync);
+        SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFileAsync);
+        SendFolderCommand = ReactiveCommand.CreateFromTask(OpenFolderAsync);
         ImageBackCommand = ReactiveCommand.Create(PreviousImage);
         ImageForwardCommand = ReactiveCommand.Create(NextImage);
     }
     #endregion
 
     #region Private Methods
-    private async Task OpenImageFile()
+    private async Task OpenImageFileAsync()
     {
         try
         {
@@ -145,25 +147,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             var file = await _filesService.OpenImageFileAsync();
             if (file != null)
             {
+                _imageFiles = [file];
                 _imageFilesBitmap = [new Bitmap(await file.OpenReadAsync())];
 
-                List<RecognitionResult> detections = await GetRecognitionResults();
+                List<RecognitionResult> detections = await GetRecognitionResultsAsync(_imageFiles[0]);
 
-                var items = new AvaloniaList<RectItem>();
-                var _detectionResults = new AvaloniaList<string>();
-                foreach (RecognitionResult det in detections)
-                {
-                    try
-                    {
-                        items.Add(InitRect(det, _imageFilesBitmap[0]));
-                        await SaveRecognitionResultAsync(det);
-                        _detectionResults.Add($"Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
-                    }
-                }
+                var items = await GetDetectionResultsAsync(_imageFiles[0], _imageFilesBitmap[0]);
                 RectItems = items;
                 CurrentImage = _imageFilesBitmap[0];
             };
@@ -174,19 +163,40 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         }
     }
 
-    private async Task<List<RecognitionResult>> GetRecognitionResults(Bitmap file)
+    private async Task<AvaloniaList<RectItem>> GetDetectionResultsAsync(IStorageFile file, Bitmap fileBitmap)
+    {
+        List<RecognitionResult> detections = await GetRecognitionResultsAsync(file);
+        var items = new AvaloniaList<RectItem>();
+        var _detectionResults = new AvaloniaList<string>();
+        foreach (RecognitionResult det in detections)
+        {
+            try
+            {
+                items.Add(InitRect(det, fileBitmap));
+                await SaveRecognitionResultAsync(det);
+                _detectionResults.Add($"Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
+            }
+        }
+        return items;
+    }
+
+    private async Task<List<RecognitionResult>> GetRecognitionResultsAsync(IStorageFile file)
     {
         string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
             try
             {
-                using (var imageStream = await _imageFile.OpenReadAsync())
+                using (var imageStream = await file.OpenReadAsync())
                 {
                     var content = new MultipartFormDataContent();
                     var imageContent = new StreamContent(imageStream);
                     imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
-                    content.Add(imageContent, "image", _imageFile.Name);
+                    content.Add(imageContent, "image", file.Name);
 
                     var response = await client.PostAsync($"{surfaceRecognitionServiceAddress}/inference", content);
 
@@ -284,23 +294,29 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         };
     }
 
-    private async Task OpenFolder()
+    private async Task OpenFolderAsync()
     {
         try
         {
             var files = await _filesService.OpenImageFolderAsync();
+            _imageFiles = files;
             if (files != null)
             {
+                var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
                 var filesBitmap = new List<Bitmap>();
                 foreach (var file in files)
                 {
                     var fileBitmap = new Bitmap(await file.OpenReadAsync());
                     filesBitmap.Add(fileBitmap);
+
+                    var results = await GetDetectionResultsAsync(file, fileBitmap);
+                    itemsLists.Add(results);
                 }
                 _imageFilesBitmap = filesBitmap;
+                _rectItemsLists = itemsLists;
 
-                CurrentImage = _imageFilesBitmap[0];
                 _currentNumberOfImage = 0;
+                SetImage();
             }
         }
         catch
@@ -312,33 +328,27 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private void NextImage()
     {
-        if (_currentNumberOfImage < _imageFilesBitmap.Count - 1)
-        {
-            _currentNumberOfImage++;
-            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
-        }
-        else
-        {
-            _currentNumberOfImage = 0;
-            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
-        }
+        if (_currentNumberOfImage < _imageFilesBitmap.Count - 1) _currentNumberOfImage++;
+        else _currentNumberOfImage = 0;
+
+        SetImage();
     }
 
     private void PreviousImage()
     {
-        if(_currentNumberOfImage > 0)
-        {
-            _currentNumberOfImage--;
-            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
-        }
-        else
-        {
-            _currentNumberOfImage = _imageFilesBitmap.Count - 1;
-            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
-        }
+        if(_currentNumberOfImage > 0) _currentNumberOfImage--;
+        else _currentNumberOfImage = _imageFilesBitmap.Count - 1;
+
+        SetImage();
     }
 
-    private async Task CheckHealth()
+    private void SetImage()
+    {
+        CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        RectItems = _rectItemsLists[_currentNumberOfImage];
+    }
+
+    private async Task CheckHealthAsync()
     {
         AreButtonsEnabled = false;
         ConnectionStatus = Brushes.Red;
