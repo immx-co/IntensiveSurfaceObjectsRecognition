@@ -1,7 +1,10 @@
 ﻿using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using ClassLibrary.Database;
 using DynamicData.Kernel;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using ObjectsRecognitionUI.Services;
 using ReactiveUI;
@@ -27,6 +30,10 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private List<IStorageFile>? _imageFiles = new();
 
     private FilesService _filesService;
+
+    private readonly IConfiguration _configuration;
+
+    private IServiceProvider _serviceProvider;
 
     private ISolidColorBrush _connectionStatus;
 
@@ -66,10 +73,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     }
     #endregion
     #region Constructors
-    public MainViewModel(IScreen screen, FilesService filesService)
+    public MainViewModel(IScreen screen, FilesService filesService, IConfiguration configuration, IServiceProvider serviceProvider)
     {
         HostScreen = screen;
         _filesService = filesService;
+        _configuration = configuration;
+        _serviceProvider = serviceProvider;
 
         ConnectionStatus = Brushes.Gray;
 
@@ -91,7 +100,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private async Task CheckHealth()
     {
-        string surfaceRecognitionServiceAddress = "http://localhost:8000";
+        string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
             try

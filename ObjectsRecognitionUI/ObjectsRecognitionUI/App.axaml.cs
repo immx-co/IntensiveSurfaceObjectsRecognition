@@ -11,6 +11,9 @@ using ObjectsRecognitionUI.Services;
 using Avalonia.Controls;
 using Microsoft.Extensions.Configuration;
 using System;
+using ClassLibrary.Database;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace ObjectsRecognitionUI
 {
@@ -42,20 +45,23 @@ namespace ObjectsRecognitionUI
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
 
-                var configuration = new ConfigurationBuilder()
-                    .SetBasePath(AppContext.BaseDirectory)
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                IConfiguration configuration = new ConfigurationBuilder()
+                    .SetBasePath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\"))
+                    .AddJsonFile("appsettings.json")
                     .Build();
 
                 IServiceCollection servicesCollection = new ServiceCollection();
 
                 servicesCollection.AddSingleton<IScreen, IScreenRealization>();
 
+                servicesCollection.AddSingleton(configuration);
                 servicesCollection.AddSingleton<NavigationViewModel>();
                 servicesCollection.AddSingleton<MainViewModel>();
                 servicesCollection.AddSingleton<ConfigurationViewModel>();
 
                 servicesCollection.AddTransient<FilesService>();
+
+                servicesCollection.AddDbContext<ApplicationContext>(options => options.UseNpgsql(configuration.GetConnectionString("stringConnection")), ServiceLifetime.Transient);
 
                 ServiceProvider servicesProvider = servicesCollection.BuildServiceProvider();
 

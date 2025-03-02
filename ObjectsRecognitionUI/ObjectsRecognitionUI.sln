@@ -4,8 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjectsRecognitionUI", "ObjectsRecognitionUI\ObjectsRecognitionUI.csproj", "{FF806B88-1802-46D4-8590-9F3152731350}"
+	ProjectSection(ProjectDependencies) = postProject
+		{26089C47-49F2-4F06-B108-9843A993E02C} = {26089C47-49F2-4F06-B108-9843A993E02C}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary", "ClassLibrary\ClassLibrary.csproj", "{26089C47-49F2-4F06-B108-9843A993E02C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary", "ClassLibrary\ClassLibrary.csproj", "{26089C47-49F2-4F06-B108-9843A993E02C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
