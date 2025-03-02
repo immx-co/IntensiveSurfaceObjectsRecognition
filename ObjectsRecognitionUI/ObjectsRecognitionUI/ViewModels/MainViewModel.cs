@@ -79,7 +79,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         set => this.RaiseAndSetIfChanged(ref _rectItems, value);
     }
 
-    private Bitmap? CurrentImage
+    public Bitmap? CurrentImage
     {
         get => _currentImage;
         set => this.RaiseAndSetIfChanged(ref _currentImage, value);

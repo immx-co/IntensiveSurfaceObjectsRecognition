@@ -46,23 +46,41 @@
 					<PathIcon Data="{StaticResource chevron_right_regular}"/>
 				</Button>
 			</StackPanel>
-			<StackPanel Margin="0 20 0 0" Orientation="Horizontal"
-						HorizontalAlignment="Center">
-				<Button Content="Отправить изображение"
-						Command="{Binding SendImageCommand}"
-						Margin="0 0 5 0"/>
-				<Button Content="Отправить папку с изображениями"
-						Command="{Binding SendFolderCommand}"
-						Margin="0 0 5 0"/>
-				<Button Content="Отправить видео"
-						Margin="0 0 5 0"/>
-				<Button Content="Подключиться"
-						Command="{Binding ConnectCommand}"
-						Margin="0 0 5 0"/>
-				<Ellipse Width="20" 
-						 Height="20" 
-						 Fill="{Binding ConnectionStatus}"/>
-			</StackPanel>
+			
+			<Grid VerticalAlignment="Bottom"
+				  HorizontalAlignment="Center"
+				  Margin="0 0 0 20">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+
+				<StackPanel Grid.Row="1"
+							Orientation="Vertical"
+							Margin="0, 30">
+					<ProgressBar Grid.Row="0"
+								 IsIndeterminate="True"
+								 HorizontalAlignment="Stretch"
+								 Height="10"
+								 Margin="0 0 0 10"
+								 IsVisible="{Binding IsLoading}"/>
+
+					<StackPanel Orientation="Horizontal">
+						<Button Content="Отправить изображение"
+							Command="{Binding SendImageCommand}"
+							Margin="0 0 5 0"/>
+						<Button Content="Отправить папку с изображениями"
+								Command="{Binding SendFolderCommand}"
+								Margin="0 0 5 0"/>
+						<Button Content="Отправить видео"
+								Margin="0 0 5 0"/>
+						<Button Content="Подключиться"
+								Command="{Binding ConnectCommand}"
+								Margin="0 0 5 0"/>
+						<Ellipse Width="20" Height="20" Fill="{Binding ConnectionStatus}"/>
+					</StackPanel>
+				</StackPanel>
+			</Grid>
 		</StackPanel>
 	</Grid>
 </UserControl>
