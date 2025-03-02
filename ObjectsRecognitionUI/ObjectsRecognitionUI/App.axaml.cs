@@ -9,6 +9,8 @@ using ReactiveUI;
 using ObjectsRecognitionUI.Views;
 using ObjectsRecognitionUI.Services;
 using Avalonia.Controls;
+using Microsoft.Extensions.Configuration;
+using System;
 
 namespace ObjectsRecognitionUI
 {
@@ -26,6 +28,11 @@ namespace ObjectsRecognitionUI
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
+
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppContext.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .Build();
 
                 IServiceCollection servicesCollection = new ServiceCollection();
 
