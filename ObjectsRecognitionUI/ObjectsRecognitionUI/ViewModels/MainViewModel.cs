@@ -52,6 +52,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private bool _areButtonsEnabled;
 
+    private AvaloniaList<string> _detectionResults;
+
     private AvaloniaList<RectItem> _rectItems;
     #endregion
 
@@ -106,6 +108,11 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         private set => this.RaiseAndSetIfChanged(ref _areButtonsEnabled, value);
     }
 
+    public AvaloniaList<string> DetectionResults
+    {
+        get => _detectionResults;
+        set => this.RaiseAndSetIfChanged(ref _detectionResults, value);
+    }
     #endregion
     #region Constructors
     public MainViewModel(IScreen screen, FilesService filesService, IConfiguration configuration, IServiceProvider serviceProvider)
@@ -117,6 +124,11 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
         ConnectionStatus = Brushes.Gray;
         AreButtonsEnabled = false;
+        _detectionResults = new AvaloniaList<string>
+        {
+            "Test Result1",
+            "Test Result2"
+        };
 
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealth);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
@@ -137,14 +149,16 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 _imageFileBitmap = new Bitmap(await file.OpenReadAsync());
 
                 List<RecognitionResult> detections = await GetRecognitionResults();
-                ;
+                
                 var items = new AvaloniaList<RectItem>();
+                var _detectionResults = new AvaloniaList<string>();
                 foreach (RecognitionResult det in detections)
                 {
                     try
                     {
                         items.Add(InitRect(det));
                         await SaveRecognitionResultAsync(det);
+                        _detectionResults.Add($"Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
                     }
                     catch (Exception ex)
                     {

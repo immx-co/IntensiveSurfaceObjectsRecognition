@@ -45,6 +45,17 @@
 					<PathIcon Data="{StaticResource chevron_right_regular}"/>
 				</Button>
 			</StackPanel>
+
+			<ListBox ItemsSource="{Binding DetectionResults}"
+                 MaxWidth="1000"
+                 MaxHeight="150"
+                 Margin="0 20 0 0">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding}"/>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
 			
 			<Grid VerticalAlignment="Bottom"
 				  HorizontalAlignment="Center"
