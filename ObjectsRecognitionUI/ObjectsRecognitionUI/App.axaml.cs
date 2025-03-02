@@ -61,7 +61,7 @@ namespace ObjectsRecognitionUI
 
                 servicesCollection.AddTransient<FilesService>();
 
-                servicesCollection.AddDbContext<ApplicationContext>(options => options.UseNpgsql(configuration.GetConnectionString("stringConnection")), ServiceLifetime.Transient);
+                servicesCollection.AddDbContext<ApplicationContext>(options => options.UseNpgsql(configuration.GetConnectionString("dbStringConnection")), ServiceLifetime.Transient);
 
                 ServiceProvider servicesProvider = servicesCollection.BuildServiceProvider();
 

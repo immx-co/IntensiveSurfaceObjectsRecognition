@@ -2,7 +2,9 @@
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using ClassLibrary.Database;
+using ClassLibrary.Database.Models;
 using DynamicData.Kernel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
@@ -95,6 +97,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         {
             _imageFiles.Add(file);
             _imageFilesBitmap.Add(new Bitmap(await file.OpenReadAsync()));
+
+            await SaveRecognitionResultAsync();
         }
     }
 
@@ -134,6 +138,24 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandard(caption, message);
         messageBoxStandardWindow.ShowAsync();
+    }
+    #endregion
+
+    #region Private Methods
+    private async Task SaveRecognitionResultAsync()
+    {
+        var recognitionResult = new RecognitionResult
+        {
+            ClassName = "people",
+            X = 0.5f,
+            Y = 0.5f,
+            Width = 0.5f,
+            Height = 0.5f
+        };
+
+        using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
+        db.RecognitionResults.AddRange(recognitionResult);
+        await db.SaveChangesAsync();
     }
     #endregion
 }
