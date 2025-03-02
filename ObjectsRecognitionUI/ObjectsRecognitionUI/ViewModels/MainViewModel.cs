@@ -1,11 +1,15 @@
-﻿using Avalonia.Media.Imaging;
+﻿using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using DynamicData.Kernel;
+using MsBox.Avalonia;
 using ObjectsRecognitionUI.Services;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
 using System.Reactive;
 using System.Text;
 using System.Threading;
@@ -23,6 +27,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private List<IStorageFile>? _imageFiles = new();
 
     private FilesService _filesService;
+
+    private ISolidColorBrush _connectionStatus;
 
     private Bitmap? CurrentImage
     {
@@ -52,13 +58,23 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     public ReactiveCommand<Unit, Unit> ConnectCommand { get; }
     #endregion
 
+    #region Properties
+    public ISolidColorBrush ConnectionStatus
+    {
+        get => _connectionStatus;
+        private set => this.RaiseAndSetIfChanged(ref _connectionStatus, value);
+    }
+    #endregion
     #region Constructors
     public MainViewModel(IScreen screen, FilesService filesService)
     {
         HostScreen = screen;
         _filesService = filesService;
 
+        ConnectionStatus = Brushes.Gray;
+
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
+        ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealth);
     }
     #endregion
 
@@ -71,6 +87,44 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             _imageFiles.Add(file);
             _imageFilesBitmap.Add(new Bitmap(await file.OpenReadAsync()));
         }
+    }
+
+    private async Task CheckHealth()
+    {
+        string surfaceRecognitionServiceAddress = "http://localhost:8000";
+        using (var client = new HttpClient())
+        {
+            try
+            {
+                var response = await client.GetAsync(surfaceRecognitionServiceAddress);
+                if (response.IsSuccessStatusCode)
+                {
+                    ConnectionStatus = Brushes.Green;
+                    ShowMessageBox("Success", $"Вы успешно подключились к {surfaceRecognitionServiceAddress}");
+                }
+                else
+                {
+                    ConnectionStatus = Brushes.Red;
+                    ShowMessageBox("Failed", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
+                }
+            }
+            catch
+            {
+                ConnectionStatus = Brushes.Red;
+                ShowMessageBox("Failed", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Показывает всплывающее сообщение.
+    /// </summary>
+    /// <param name="caption">Заголовок сообщения.</param>
+    /// <param name="message">Сообщение пользователю.</param>
+    public void ShowMessageBox(string caption, string message)
+    {
+        var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandard(caption, message);
+        messageBoxStandardWindow.ShowAsync();
     }
     #endregion
 }

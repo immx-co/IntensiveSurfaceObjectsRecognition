@@ -38,7 +38,10 @@
 					Margin="0 0 5 0"/>
 			<Button Content="Отправить видео"
 					Margin="0 0 5 0"/>
-			<Button Content="Подключиться"/>
+			<Button Content="Подключиться"
+					Command="{Binding ConnectCommand}"
+					Margin="0 0 5 0"/>
+			<Ellipse Width="20" Height="20" Fill="{Binding ConnectionStatus}"/>
 		</StackPanel>
 	</Grid>
 </UserControl>
