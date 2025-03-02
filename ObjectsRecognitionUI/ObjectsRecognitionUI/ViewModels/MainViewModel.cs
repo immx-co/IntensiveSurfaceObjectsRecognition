@@ -34,10 +34,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private List<IStorageFile>? _imageFiles = new();
 
-    private IStorageFile? _imageFile;
-
-    private Bitmap? _imageFileBitmap;
-
     private FilesService _filesService;
 
     private readonly IConfiguration _configuration;
@@ -49,6 +45,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private bool _isLoading;
 
     private AvaloniaList<RectItem> _rectItems;
+
+    private int _currentNumberOfImage;
     #endregion
 
     #region View Model Settings
@@ -110,73 +108,70 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealth);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
         SendFolderCommand = ReactiveCommand.CreateFromTask(OpenFolder);
+        ImageBackCommand = ReactiveCommand.Create(PreviousImage);
+        ImageForwardCommand = ReactiveCommand.Create(NextImage);
     }
     #endregion
 
-    #region Public Methods
+    #region Private Methods
     private async Task OpenImageFile()
     {
-        try
+        IsLoading = true;
+        var file = await _filesService.OpenImageFileAsync();
+        if (file != null)
         {
-            IsLoading = true;
-            var file = await _filesService.OpenImageFileAsync();
-            if (file != null)
+            _imageFilesBitmap = [new Bitmap(await file.OpenReadAsync())];
+
+            /// Тут мы посылаем изображение на нейросетевой сервис
+            /// 
+            /// ответ от сервиса.
+            var recognitionResult1 = new RecognitionResult
             {
-                _imageFile = file;
-                _imageFileBitmap = new Bitmap(await file.OpenReadAsync());
-
-                /// Тут мы посылаем изображение на нейросетевой сервис
-                /// 
-                /// ответ от сервиса.
-                var recognitionResult1 = new RecognitionResult
-                {
-                    ClassName = "human",
-                    X = 100,
-                    Y = 100,
-                    Width = 100,
-                    Height = 100
-                };
-                var recognitionResult2 = new RecognitionResult
-                {
-                    ClassName = "bouy",
-                    X = 960,
-                    Y = 540,
-                    Width = 100,
-                    Height = 100
-                };
-
-                var recognitionResult3 = new RecognitionResult
-                {
-                    ClassName = "kayak",
-                    X = 1870,
-                    Y = 1030,
-                    Width = 100,
-                    Height = 100
-                };
-                await SaveRecognitionResultAsync(recognitionResult1);
-
-                var items = new AvaloniaList<RectItem>
-                {
-                    InitRect(recognitionResult1),
-                    InitRect(recognitionResult2),
-                    InitRect(recognitionResult3)
-                };
-
-                RectItems = items;
-
-                CurrentImage = _imageFileBitmap;
+                ClassName = "human",
+                X = 100,
+                Y = 100,
+                Width = 100,
+                Height = 100
             };
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+            var recognitionResult2 = new RecognitionResult
+            {
+                ClassName = "bouy",
+                X = 960,
+                Y = 540,
+                Width = 100,
+                Height = 100
+            };
+
+            var recognitionResult3 = new RecognitionResult
+            {
+                ClassName = "kayak",
+                X = 1870,
+                Y = 1030,
+                Width = 100,
+                Height = 100
+            };
+            await SaveRecognitionResultAsync(recognitionResult1);
+
+            var items = new AvaloniaList<RectItem>
+                {
+                    InitRect(recognitionResult1, _imageFilesBitmap[0]),
+                    InitRect(recognitionResult2, _imageFilesBitmap[0]),
+                    InitRect(recognitionResult3, _imageFilesBitmap[0])
+                };
+
+            RectItems = items;
+
+            _currentNumberOfImage = 0;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        };
+
+        IsLoading = false;
     }
 
-    private RectItem InitRect(RecognitionResult recognitionResult)
+    private RectItem InitRect(RecognitionResult recognitionResult, Bitmap file)
     {
-        double widthImage = _imageFileBitmap.Size.Width;
-        double heightImage = _imageFileBitmap.Size.Height;
+        double widthImage = file.Size.Width;
+        double heightImage = file.Size.Height;
 
         double k1 = widthImage / 500;
         double k2 = heightImage / 300;
@@ -192,11 +187,11 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             heightImage /= k2;
         }
 
-        double xCenter = widthImage * (recognitionResult.X / _imageFileBitmap.Size.Width) + (500 - widthImage) / 2;
-        double yCenter = heightImage * (recognitionResult.Y / _imageFileBitmap.Size.Height) + (300 - heightImage) / 2;
+        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (500 - widthImage) / 2;
+        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (300 - heightImage) / 2;
 
-        int width = (int)(widthImage * (recognitionResult.Width / _imageFileBitmap.Size.Width));
-        int height = (int)(heightImage * (recognitionResult.Height / _imageFileBitmap.Size.Height));
+        int width = (int)(widthImage * (recognitionResult.Width / file.Size.Width));
+        int height = (int)(heightImage * (recognitionResult.Height / file.Size.Height));
 
         int x = (int)(xCenter - width / 2);
         int y = (int)(yCenter - height / 2);
@@ -220,10 +215,58 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         };
     }
 
-
     private async Task OpenFolder()
     {
-        ;
+        try
+        {
+            var files = await _filesService.OpenImageFolderAsync();
+            if (files != null)
+            {
+                var filesBitmap = new List<Bitmap>();
+                foreach (var file in files)
+                {
+                    var fileBitmap = new Bitmap(await file.OpenReadAsync());
+                    filesBitmap.Add(fileBitmap);
+                }
+                _imageFilesBitmap = filesBitmap;
+
+                CurrentImage = _imageFilesBitmap[0];
+                _currentNumberOfImage = 0;
+            }
+        }
+        catch
+        {
+            ShowMessageBox("Ошибка", "В выбранной дирректории отсутвуют изображения или пристуствуют файлы с недопустимым расширением");
+            return;
+        }
+    }
+
+    private void NextImage()
+    {
+        if (_currentNumberOfImage < _imageFilesBitmap.Count - 1)
+        {
+            _currentNumberOfImage++;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        }
+        else
+        {
+            _currentNumberOfImage = 0;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        }
+    }
+
+    private void PreviousImage()
+    {
+        if(_currentNumberOfImage > 0)
+        {
+            _currentNumberOfImage--;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        }
+        else
+        {
+            _currentNumberOfImage = _imageFilesBitmap.Count - 1;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        }
     }
 
     private async Task CheckHealth()
