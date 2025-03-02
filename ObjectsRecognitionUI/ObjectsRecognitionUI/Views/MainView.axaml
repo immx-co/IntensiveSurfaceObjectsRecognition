@@ -11,38 +11,61 @@
 		<StreamGeometry x:Key="chevron_right_regular">M16.1161 39.6339C15.628 39.1457 15.628 38.3543 16.1161 37.8661L29.9822 24L16.1161 10.1339C15.628 9.64573 15.628 8.85427 16.1161 8.36612C16.6043 7.87796 17.3957 7.87796 17.8839 8.36612L32.6339 23.1161C33.122 23.6043 33.122 24.3957 32.6339 24.8839L17.8839 39.6339C17.3957 40.122 16.6043 40.122 16.1161 39.6339Z</StreamGeometry>
 	</UserControl.Resources>
 	<Grid>
-		<StackPanel HorizontalAlignment="Center"
-							VerticalAlignment="Center"
-							Orientation="Horizontal">
-			<Button Margin="0 0 5 0">
-				<PathIcon Data="{StaticResource chevron_left_regular}"/>
-			</Button>
-			<Border Background="Gainsboro"
-					Width="450"
-					Height="300">
-				<Image MaxWidth="450"
-					   MaxHeight="350"
-					   RenderOptions.BitmapInterpolationMode="HighQuality"/>
-			</Border>
-			<Button Margin="5 0 0 0">
-				<PathIcon Data="{StaticResource chevron_right_regular}"/>
-			</Button>
-		</StackPanel>
-		<StackPanel Margin="0 0 0 20" Orientation="Horizontal"
-					VerticalAlignment="Bottom"
-					HorizontalAlignment="Center">
-			<Button Content="Отправить изображение"
-					Command="{Binding SendImageCommand}"
-					Margin="0 0 5 0"/>
-			<Button Content="Отправить папку с изображениями"
-					Command="{Binding SendFolderCommand}"
-					Margin="0 0 5 0"/>
-			<Button Content="Отправить видео"
-					Margin="0 0 5 0"/>
-			<Button Content="Подключиться"
-					Command="{Binding ConnectCommand}"
-					Margin="0 0 5 0"/>
-			<Ellipse Width="20" Height="20" Fill="{Binding ConnectionStatus}"/>
+		<StackPanel VerticalAlignment="Center">
+			<StackPanel HorizontalAlignment="Center" 
+						Orientation="Horizontal">
+				<Button Margin="0 0 5 0">
+					<PathIcon Data="{StaticResource chevron_left_regular}"/>
+				</Button>
+				<Grid Width="500"
+					  Height="300">
+					<Border Background="Gainsboro">
+						<Image MaxWidth="600"
+							   MaxHeight="400"
+							   Source="{Binding CurrentImage}"
+							   RenderOptions.BitmapInterpolationMode="HighQuality">
+						</Image>
+					</Border>
+						<ItemsControl ItemsSource="{Binding RectItems}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Canvas/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Border BorderBrush="{Binding Color}"
+											Opacity="0.5"
+											BorderThickness="5"
+											Width="{Binding Width}"
+											Height="{Binding Height}"
+											Canvas.Left="{Binding X}"
+											Canvas.Top="{Binding Y}"/>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+				</Grid>
+				<Button Margin="5 0 0 0">
+					<PathIcon Data="{StaticResource chevron_right_regular}"/>
+				</Button>
+			</StackPanel>
+			<StackPanel Margin="0 20 0 0" Orientation="Horizontal"
+						HorizontalAlignment="Center">
+				<Button Content="Отправить изображение"
+						Command="{Binding SendImageCommand}"
+						Margin="0 0 5 0"/>
+				<Button Content="Отправить папку с изображениями"
+						Command="{Binding SendFolderCommand}"
+						Margin="0 0 5 0"/>
+				<Button Content="Отправить видео"
+						Margin="0 0 5 0"/>
+				<Button Content="Подключиться"
+						Command="{Binding ConnectCommand}"
+						Margin="0 0 5 0"/>
+				<Ellipse Width="20" 
+						 Height="20" 
+						 Fill="{Binding ConnectionStatus}"/>
+			</StackPanel>
 		</StackPanel>
 	</Grid>
 </UserControl>

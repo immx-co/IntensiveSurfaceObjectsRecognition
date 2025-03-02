@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Avalonia.Collections;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using ClassLibrary.Database;
@@ -31,6 +32,10 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private List<IStorageFile>? _imageFiles = new();
 
+    private IStorageFile? _imageFile;
+
+    private Bitmap? _imageFileBitmap;
+
     private FilesService _filesService;
 
     private readonly IConfiguration _configuration;
@@ -39,11 +44,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private ISolidColorBrush _connectionStatus;
 
-    private Bitmap? CurrentImage
-    {
-        get => _currentImage;
-        set => this.RaiseAndSetIfChanged(ref _currentImage, value);
-    }
+    private AvaloniaList<RectItem> _rectItems;
     #endregion
 
     #region View Model Settings
@@ -68,6 +69,18 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Properties
+    public AvaloniaList<RectItem> RectItems
+    {
+        get => _rectItems;
+        set => this.RaiseAndSetIfChanged(ref _rectItems, value);
+    }
+
+    public Bitmap? CurrentImage
+    {
+        get => _currentImage;
+        set => this.RaiseAndSetIfChanged(ref _currentImage, value);
+    }
+
     public ISolidColorBrush ConnectionStatus
     {
         get => _connectionStatus;
@@ -96,25 +109,100 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         var file = await _filesService.OpenImageFileAsync();
         if (file != null)
         {
-            _imageFiles.Add(file);
-            _imageFilesBitmap.Add(new Bitmap(await file.OpenReadAsync()));
+            _imageFile = file;
+            _imageFileBitmap = new Bitmap(await file.OpenReadAsync());
 
             /// Тут мы посылаем изображение на нейросетевой сервис
             /// 
             /// ответ от сервиса.
-            var recognitionResult = new RecognitionResult
+            var recognitionResult1 = new RecognitionResult
             {
-                ClassName = "people",
-                X = 0.5f,
-                Y = 0.3f,
-                Width = 0.5f,
-                Height = 0.5f
+                ClassName = "human",
+                X = 1000,
+                Y = 500,
+                Width = 50,
+                Height = 50
             };
 
-            await SaveRecognitionResultAsync(recognitionResult);
+            var recognitionResult2 = new RecognitionResult
+            {
+                ClassName = "bouy",
+                X = 800,
+                Y = 150,
+                Width = 50,
+                Height = 50
+            };
 
+            var recognitionResult3 = new RecognitionResult
+            {
+                ClassName = "kayak",
+                X = 200,
+                Y = 1000,
+                Width = 50,
+                Height = 50
+            };
+
+            await SaveRecognitionResultAsync(recognitionResult1);
+
+            var items = new AvaloniaList<RectItem>
+            {
+                InitRect(recognitionResult1),
+                InitRect(recognitionResult2),
+                InitRect(recognitionResult3)
+            };
+
+            RectItems = items;
+
+            CurrentImage = _imageFileBitmap;
             /// Добавить функцию для отрисовки изображения + прямоугольников в UI
         }
+    }
+
+    private RectItem InitRect(RecognitionResult recognitionResult)
+    {
+        double widthImage = _imageFileBitmap.Size.Width;
+        double heightImage = _imageFileBitmap.Size.Height;
+
+        double k1 = widthImage / 500;
+        double k2 = heightImage / 300;
+
+        if (k1 > k2)
+        {
+            widthImage /= k1;
+            heightImage /= k1;
+        }
+        else
+        {
+            widthImage /= k2;
+            heightImage /= k2;
+        }
+
+        double xCenter = widthImage * (recognitionResult.Width / widthImage) + (500 - widthImage) / 2;
+        double yCenter = heightImage * (recognitionResult.Height / heightImage) + (300 - heightImage) / 2;
+
+        int width = (int)(widthImage * (recognitionResult.Width / _imageFileBitmap.Size.Width));
+        int height = (int)(heightImage * (recognitionResult.Height / _imageFileBitmap.Size.Height));
+
+        int x = (int)(xCenter - width / 2);
+        int y = (int)(yCenter - height / 2);
+
+        string color = recognitionResult.ClassName switch
+        {
+            "human" => "Green",
+            "sup-board" => "Red",
+            "bouy" => "Blue",
+            "sailboat" => "Yellow",
+            "kayak" => "Purple"
+        };
+
+        return new RectItem
+        {
+            X = x,
+            Y = y,
+            Width = width,
+            Height = height,
+            Color = color
+        };
     }
 
     private async Task OpenFolder()
