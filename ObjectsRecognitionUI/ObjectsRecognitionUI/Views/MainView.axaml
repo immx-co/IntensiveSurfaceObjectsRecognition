@@ -18,11 +18,11 @@
 						Command="{Binding ImageBackCommand}">
 					<PathIcon Data="{StaticResource chevron_left_regular}"/>
 				</Button>
-				<Grid Width="1000"
-					  Height="500">
+				<Grid Width="1250"
+					  Height="600">
 					<Border Background="Gainsboro">
-						<Image MaxWidth="1000"
-							   MaxHeight="500"
+						<Image MaxWidth="1250"
+							   MaxHeight="600"
 							   Source="{Binding CurrentImage}"
 							   RenderOptions.BitmapInterpolationMode="HighQuality">
 						</Image>

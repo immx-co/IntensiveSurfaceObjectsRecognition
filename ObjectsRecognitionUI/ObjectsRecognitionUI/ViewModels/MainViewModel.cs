@@ -124,11 +124,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
         ConnectionStatus = Brushes.Gray;
         AreButtonsEnabled = false;
-        _detectionResults = new AvaloniaList<string>
-        {
-            "Test Result1",
-            "Test Result2"
-        };
+        _detectionResults = new AvaloniaList<string>();
 
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealthAsync);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFileAsync);
@@ -167,20 +163,21 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         List<RecognitionResult> detections = await GetRecognitionResultsAsync(file);
         var items = new AvaloniaList<RectItem>();
-        var _detectionResults = new AvaloniaList<string>();
+        var detectionResults = new AvaloniaList<string>();
         foreach (RecognitionResult det in detections)
         {
             try
             {
                 items.Add(InitRect(det, fileBitmap));
                 await SaveRecognitionResultAsync(det);
-                _detectionResults.Add($"Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
+                detectionResults.Add($"Событие: Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
             }
             catch (Exception ex)
             {
                 ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
             }
         }
+        DetectionResults = detectionResults;
         return items;
     }
 
@@ -252,8 +249,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             throw new InvalidOperationException("Некорректные размеры изображения.");
         }
 
-        double k1 = widthImage / 1000;
-        double k2 = heightImage / 500;
+        double k1 = widthImage / 1250;
+        double k2 = heightImage / 600;
 
         if (k1 > k2)
         {
@@ -266,8 +263,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             heightImage /= k2;
         }
 
-        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (1000 - widthImage) / 2;
-        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (500 - heightImage) / 2;
+        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (1250 - widthImage) / 2;
+        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (600 - heightImage) / 2;
 
         int width = (int)(widthImage * (recognitionResult.Width / file.Size.Width));
         int height = (int)(heightImage * (recognitionResult.Height / file.Size.Height));
