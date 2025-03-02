@@ -17,6 +17,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Reactive;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -147,11 +149,22 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         {
             try
             {
-                var response = await client.GetAsync(surfaceRecognitionServiceAddress);
+                var response = await client.GetAsync($"{surfaceRecognitionServiceAddress}/health");
+
                 if (response.IsSuccessStatusCode)
                 {
-                    ConnectionStatus = Brushes.Green;
-                    ShowMessageBox("Success", $"Вы успешно подключились к {surfaceRecognitionServiceAddress}");
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var healthResponse = JsonSerializer.Deserialize<HealthCheckResponse>(jsonResponse);
+                    if (healthResponse?.StatusCode == 200)
+                    {
+                        ConnectionStatus = Brushes.Green;
+                        ShowMessageBox("Success", $"Сервис доступен. Статус: {healthResponse.StatusCode}");
+                    }
+                    else
+                    {
+                        ConnectionStatus = Brushes.Red;
+                        ShowMessageBox("Failed", $"Сервис недоступен. Статус: {healthResponse?.StatusCode}");
+                    }
                 }
                 else
                 {
@@ -187,4 +200,13 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         await db.SaveChangesAsync();
     }
     #endregion
+
+    private class HealthCheckResponse
+    {
+        [JsonPropertyName("status_code")]
+        public int StatusCode { get; set; }
+
+        [JsonPropertyName("datetime")]
+        public DateTime Datetime { get; set; }
+    }
 }
