@@ -23,7 +23,8 @@
 		<StackPanel VerticalAlignment="Bottom"
 					HorizontalAlignment="Right"
 					Margin="20">
-			<Button Content="Сохранить"/>
+			<Button Content="Сохранить"
+					Command="{Binding SaveConfigCommand}"/>
 		</StackPanel>
 	</Grid>
 	
