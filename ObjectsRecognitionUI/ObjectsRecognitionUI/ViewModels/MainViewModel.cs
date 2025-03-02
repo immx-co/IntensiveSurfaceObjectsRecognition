@@ -118,28 +118,28 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             var recognitionResult1 = new RecognitionResult
             {
                 ClassName = "human",
-                X = 1000,
-                Y = 500,
-                Width = 50,
-                Height = 50
+                X = 100,
+                Y = 100,
+                Width = 100,
+                Height = 100
             };
 
             var recognitionResult2 = new RecognitionResult
             {
                 ClassName = "bouy",
-                X = 800,
-                Y = 150,
-                Width = 50,
-                Height = 50
+                X = 960,
+                Y = 540,
+                Width = 100,
+                Height = 100
             };
 
             var recognitionResult3 = new RecognitionResult
             {
                 ClassName = "kayak",
-                X = 200,
-                Y = 1000,
-                Width = 50,
-                Height = 50
+                X = 1870,
+                Y = 1030,
+                Width = 100,
+                Height = 100
             };
 
             await SaveRecognitionResultAsync(recognitionResult1);
@@ -177,8 +177,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             heightImage /= k2;
         }
 
-        double xCenter = widthImage * (recognitionResult.Width / widthImage) + (500 - widthImage) / 2;
-        double yCenter = heightImage * (recognitionResult.Height / heightImage) + (300 - heightImage) / 2;
+        double xCenter = widthImage * (recognitionResult.X / _imageFileBitmap.Size.Width) + (500 - widthImage) / 2;
+        double yCenter = heightImage * (recognitionResult.Y / _imageFileBitmap.Size.Height) + (300 - heightImage) / 2;
 
         int width = (int)(widthImage * (recognitionResult.Width / _imageFileBitmap.Size.Width));
         int height = (int)(heightImage * (recognitionResult.Height / _imageFileBitmap.Size.Height));
