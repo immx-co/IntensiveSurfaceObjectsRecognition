@@ -4,6 +4,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using ClassLibrary.Database;
 using ClassLibrary.Database.Models;
+using DynamicData;
 using DynamicData.Kernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive;
@@ -125,45 +127,22 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 _imageFile = file;
                 _imageFileBitmap = new Bitmap(await file.OpenReadAsync());
 
-                /// Тут мы посылаем изображение на нейросетевой сервис
-                /// 
-                /// ответ от сервиса.
-                var recognitionResult1 = new RecognitionResult
+                List<RecognitionResult> detections = await GetRecognitionResults();
+                ;
+                var items = new AvaloniaList<RectItem>();
+                foreach (RecognitionResult det in detections)
                 {
-                    ClassName = "human",
-                    X = 100,
-                    Y = 100,
-                    Width = 100,
-                    Height = 100
-                };
-                var recognitionResult2 = new RecognitionResult
-                {
-                    ClassName = "bouy",
-                    X = 960,
-                    Y = 540,
-                    Width = 100,
-                    Height = 100
-                };
-
-                var recognitionResult3 = new RecognitionResult
-                {
-                    ClassName = "kayak",
-                    X = 1870,
-                    Y = 1030,
-                    Width = 100,
-                    Height = 100
-                };
-                await SaveRecognitionResultAsync(recognitionResult1);
-
-                var items = new AvaloniaList<RectItem>
-                {
-                    InitRect(recognitionResult1),
-                    InitRect(recognitionResult2),
-                    InitRect(recognitionResult3)
-                };
-
+                    try
+                    {
+                        items.Add(InitRect(det));
+                        await SaveRecognitionResultAsync(det);
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
+                    }
+                }
                 RectItems = items;
-
                 CurrentImage = _imageFileBitmap;
             };
         }
@@ -173,13 +152,76 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         }
     }
 
+    private async Task<List<RecognitionResult>> GetRecognitionResults()
+    {
+        string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
+        using (var client = new HttpClient())
+        {
+            try
+            {
+                using (var imageStream = await _imageFile.OpenReadAsync())
+                {
+                    var content = new MultipartFormDataContent();
+                    var imageContent = new StreamContent(imageStream);
+                    imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                    content.Add(imageContent, "image", _imageFile.Name);
+
+                    var response = await client.PostAsync($"{surfaceRecognitionServiceAddress}/inference", content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<DetectedAndClassifiedObject>(jsonResponse);
+
+                        if (result?.ObjectBbox != null)
+                        {
+                            return result.ObjectBbox.Select(bbox => new RecognitionResult
+                            {
+                                ClassName = bbox.ClassName,
+                                X = bbox.X,
+                                Y = bbox.Y,
+                                Width = bbox.Width,
+                                Height = bbox.Height
+                            }).ToList();
+                        }
+                    }
+                    else
+                    {
+                        ShowMessageBox("Error", $"Ошибка при отправке изображения: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBox("Error", $"Ошибка при отправке изображения: {ex.Message}");
+            }
+        }
+
+        return new List<RecognitionResult>();
+    }
+
     private RectItem InitRect(RecognitionResult recognitionResult)
     {
+        if (_imageFileBitmap == null)
+        {
+            throw new InvalidOperationException("Изображение не загружено.");
+        }
+
+        if (recognitionResult.X < 0 || recognitionResult.Y < 0 || recognitionResult.Width <= 0 || recognitionResult.Height <= 0)
+        {
+            throw new ArgumentException("Некорректные координаты или размеры прямоугольника.");
+        }
+
         double widthImage = _imageFileBitmap.Size.Width;
         double heightImage = _imageFileBitmap.Size.Height;
 
-        double k1 = widthImage / 500;
-        double k2 = heightImage / 300;
+        if (widthImage <= 0 || heightImage <= 0)
+        {
+            throw new InvalidOperationException("Некорректные размеры изображения.");
+        }
+
+        double k1 = widthImage / 1000;
+        double k2 = heightImage / 500;
 
         if (k1 > k2)
         {
@@ -192,8 +234,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             heightImage /= k2;
         }
 
-        double xCenter = widthImage * (recognitionResult.X / _imageFileBitmap.Size.Width) + (500 - widthImage) / 2;
-        double yCenter = heightImage * (recognitionResult.Y / _imageFileBitmap.Size.Height) + (300 - heightImage) / 2;
+        double xCenter = widthImage * (recognitionResult.X / _imageFileBitmap.Size.Width) + (1000 - widthImage) / 2;
+        double yCenter = heightImage * (recognitionResult.Y / _imageFileBitmap.Size.Height) + (500 - heightImage) / 2;
 
         int width = (int)(widthImage * (recognitionResult.Width / _imageFileBitmap.Size.Width));
         int height = (int)(heightImage * (recognitionResult.Height / _imageFileBitmap.Size.Height));
@@ -204,7 +246,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         string color = recognitionResult.ClassName switch
         {
             "human" => "Green",
-            "sup-board" => "Red",
+            "wind/sup-board" => "Red",
             "bouy" => "Blue",
             "sailboat" => "Yellow",
             "kayak" => "Purple"
@@ -292,5 +334,29 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
         [JsonPropertyName("datetime")]
         public DateTime Datetime { get; set; }
+    }
+
+    public class InferenceResult
+    {
+        [JsonPropertyName("class_name")]
+        public string ClassName { get; set; }
+
+        [JsonPropertyName("x")]
+        public int X { get; set; }
+
+        [JsonPropertyName("y")]
+        public int Y { get; set; }
+
+        [JsonPropertyName("width")]
+        public int Width { get; set; }
+
+        [JsonPropertyName("height")]
+        public int Height { get; set; }
+    }
+
+    public class DetectedAndClassifiedObject
+    {
+        [JsonPropertyName("object_bbox")]
+        public List<InferenceResult> ObjectBbox { get; set; }
     }
 }
