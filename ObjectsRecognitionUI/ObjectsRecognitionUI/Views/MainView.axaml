@@ -34,7 +34,8 @@
 			<Button Content="Отправить изображение"
 					Command="{Binding SendImageCommand}"
 					Margin="0 0 5 0"/>
-			<Button Content="Отправить папку"
+			<Button Content="Отправить папку с изображениями"
+					Command="{Binding SendFolderCommand}"
 					Margin="0 0 5 0"/>
 			<Button Content="Отправить видео"
 					Margin="0 0 5 0"/>

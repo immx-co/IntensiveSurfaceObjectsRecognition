@@ -84,8 +84,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
         ConnectionStatus = Brushes.Gray;
 
-        SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealth);
+        SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
+        SendFolderCommand = ReactiveCommand.CreateFromTask(OpenFolder);
     }
     #endregion
 
@@ -100,6 +101,11 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
             await SaveRecognitionResultAsync();
         }
+    }
+
+    private async Task OpenFolder()
+    {
+        ;
     }
 
     private async Task CheckHealth()
