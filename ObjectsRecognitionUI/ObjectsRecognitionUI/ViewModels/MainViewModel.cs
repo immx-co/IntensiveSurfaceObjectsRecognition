@@ -44,6 +44,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         get => _currentImage;
         set => this.RaiseAndSetIfChanged(ref _currentImage, value);
     }
+
+    private bool _isLoading;
     #endregion
 
     #region View Model Settings
@@ -73,6 +75,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         get => _connectionStatus;
         private set => this.RaiseAndSetIfChanged(ref _connectionStatus, value);
     }
+
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set => this.RaiseAndSetIfChanged(ref _isLoading, value);
+    }
     #endregion
     #region Constructors
     public MainViewModel(IScreen screen, FilesService filesService, IConfiguration configuration, IServiceProvider serviceProvider)
@@ -93,28 +101,38 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Public Methods
     private async Task OpenImageFile()
     {
-        var file = await _filesService.OpenImageFileAsync();
-        if (file != null)
+        try
         {
-            _imageFiles.Add(file);
-            _imageFilesBitmap.Add(new Bitmap(await file.OpenReadAsync()));
-
-            /// Тут мы посылаем изображение на нейросетевой сервис
-            /// 
-            /// ответ от сервиса.
-            var recognitionResult = new RecognitionResult
+            IsLoading = true;
+            var file = await _filesService.OpenImageFileAsync();
+            if (file != null)
             {
-                ClassName = "people",
-                X = 0.5f,
-                Y = 0.3f,
-                Width = 0.5f,
-                Height = 0.5f
-            };
+                _imageFiles.Add(file);
+                _imageFilesBitmap.Add(new Bitmap(await file.OpenReadAsync()));
 
-            await SaveRecognitionResultAsync(recognitionResult);
+                /// Тут мы посылаем изображение на нейросетевой сервис
+                await Task.Delay(5000);
 
-            /// Добавить функцию для отрисовки изображения + прямоугольников в UI
+                /// ответ от сервиса.
+                var recognitionResult = new RecognitionResult
+                {
+                    ClassName = "people",
+                    X = 0.5f,
+                    Y = 0.3f,
+                    Width = 0.5f,
+                    Height = 0.5f
+                };
+
+                await SaveRecognitionResultAsync(recognitionResult);
+
+                /// Добавить функцию для отрисовки изображения + прямоугольников в UI
+            }
         }
+        finally
+        {
+            IsLoading = false;
+        }
+        
     }
 
     private async Task OpenFolder()
