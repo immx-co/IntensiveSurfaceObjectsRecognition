@@ -50,6 +50,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private bool _isLoading;
 
+    private bool _areButtonsEnabled;
+
     private AvaloniaList<RectItem> _rectItems;
     #endregion
 
@@ -98,6 +100,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         get => _isLoading;
         set => this.RaiseAndSetIfChanged(ref _isLoading, value);
     }
+    public bool AreButtonsEnabled
+    {
+        get => _areButtonsEnabled;
+        private set => this.RaiseAndSetIfChanged(ref _areButtonsEnabled, value);
+    }
+
     #endregion
     #region Constructors
     public MainViewModel(IScreen screen, FilesService filesService, IConfiguration configuration, IServiceProvider serviceProvider)
@@ -108,6 +116,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         _serviceProvider = serviceProvider;
 
         ConnectionStatus = Brushes.Gray;
+        AreButtonsEnabled = false;
 
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealth);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
@@ -270,6 +279,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private async Task CheckHealth()
     {
+        AreButtonsEnabled = false;
+        ConnectionStatus = Brushes.Red;
         string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
@@ -284,6 +295,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                     if (healthResponse?.StatusCode == 200)
                     {
                         ConnectionStatus = Brushes.Green;
+                        AreButtonsEnabled = true;
                         ShowMessageBox("Success", $"Сервис доступен. Статус: {healthResponse.StatusCode}");
                     }
                     else
