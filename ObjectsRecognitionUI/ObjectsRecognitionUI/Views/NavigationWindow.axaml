@@ -12,12 +12,6 @@
         MinWidth="1300"
 		x:DataType="vm:NavigationViewModel"
 		Icon="/Assets/avalonia-logo.ico">
-
-	<Border BorderBrush="Black"
-			BorderThickness="3"
-			CornerRadius="0"
-			Background="White"
-			PointerPressed="WindowPointerMoved">
 		<Grid>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
@@ -51,5 +45,4 @@
 				</rxui:RoutedViewHost.ViewLocator>
 			</rxui:RoutedViewHost>
 		</Grid>
-	</Border>
 </Window>

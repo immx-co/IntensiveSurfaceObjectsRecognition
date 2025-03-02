@@ -4,8 +4,8 @@ public class RecognitionResult
 {
     public int Id { get; set; }
     public required string ClassName { get; set; }
-    public required float X { get; set; }
-    public required float Y { get; set; }
-    public required float Width { get; set; }
-    public required float Height { get; set; }
+    public required int X { get; set; }
+    public required int Y { get; set; }
+    public required int Width { get; set; }
+    public required int Height { get; set; }
 }
