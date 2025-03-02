@@ -99,7 +99,21 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             _imageFiles.Add(file);
             _imageFilesBitmap.Add(new Bitmap(await file.OpenReadAsync()));
 
-            await SaveRecognitionResultAsync();
+            /// Тут мы посылаем изображение на нейросетевой сервис
+            /// 
+            /// ответ от сервиса.
+            var recognitionResult = new RecognitionResult
+            {
+                ClassName = "people",
+                X = 0.5f,
+                Y = 0.3f,
+                Width = 0.5f,
+                Height = 0.5f
+            };
+
+            await SaveRecognitionResultAsync(recognitionResult);
+
+            /// Добавить функцию для отрисовки изображения + прямоугольников в UI
         }
     }
 
@@ -148,17 +162,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Private Methods
-    private async Task SaveRecognitionResultAsync()
-    {
-        var recognitionResult = new RecognitionResult
-        {
-            ClassName = "people",
-            X = 0.5f,
-            Y = 0.5f,
-            Width = 0.5f,
-            Height = 0.5f
-        };
-
+    private async Task SaveRecognitionResultAsync(RecognitionResult recognitionResult)
+    { 
         using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
         db.RecognitionResults.AddRange(recognitionResult);
         await db.SaveChangesAsync();
