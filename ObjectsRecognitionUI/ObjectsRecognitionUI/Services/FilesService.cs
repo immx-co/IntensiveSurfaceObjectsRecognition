@@ -15,7 +15,6 @@ public class FilesService
     public Window? Target => App.Current?.CurrentWindow;
     #endregion
 
-
     public async Task<IStorageFile?> OpenImageFileAsync()
     {
         var files = await Target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
@@ -26,5 +25,36 @@ public class FilesService
         });
 
         return files.Count >= 1 ? files[0] : null;
+    }
+
+    public async Task<List<IStorageFile>?> OpenImageFolderAsync()
+    {
+        var folder = await OpenFolederAsync();
+        if (folder != null)
+        {
+            var files = folder?.GetItemsAsync().ToBlockingEnumerable();
+            List<IStorageFile> imageFiles = new();
+            foreach (var file in files)
+            {
+                if (file.Path.IsFile)
+                {
+                    var storageFile = await Target.StorageProvider.TryGetFileFromPathAsync(file.Path);
+                    imageFiles.Add(storageFile);
+                }
+            }
+            return imageFiles;
+        }
+        else return null;
+    }
+
+    private async Task<IStorageFolder?> OpenFolederAsync()
+    {
+        var folders = await Target.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
+        {
+            Title = "Open Image Folder",
+            AllowMultiple = false,
+        });
+
+        return folders.Count >= 1 ? folders[0] : null;
     }
 }

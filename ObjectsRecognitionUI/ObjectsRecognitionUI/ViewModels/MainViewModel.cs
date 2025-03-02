@@ -36,10 +36,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private List<IStorageFile>? _imageFiles = new();
 
-    private IStorageFile? _imageFile;
-
-    private Bitmap? _imageFileBitmap;
-
     private FilesService _filesService;
 
     private readonly IConfiguration _configuration;
@@ -55,6 +51,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private AvaloniaList<string> _detectionResults;
 
     private AvaloniaList<RectItem> _rectItems;
+
+    private int _currentNumberOfImage;
     #endregion
 
     #region View Model Settings
@@ -133,10 +131,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealth);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFile);
         SendFolderCommand = ReactiveCommand.CreateFromTask(OpenFolder);
+        ImageBackCommand = ReactiveCommand.Create(PreviousImage);
+        ImageForwardCommand = ReactiveCommand.Create(NextImage);
     }
     #endregion
 
-    #region Public Methods
+    #region Private Methods
     private async Task OpenImageFile()
     {
         try
@@ -145,18 +145,17 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             var file = await _filesService.OpenImageFileAsync();
             if (file != null)
             {
-                _imageFile = file;
-                _imageFileBitmap = new Bitmap(await file.OpenReadAsync());
+                _imageFilesBitmap = [new Bitmap(await file.OpenReadAsync())];
 
                 List<RecognitionResult> detections = await GetRecognitionResults();
-                
+
                 var items = new AvaloniaList<RectItem>();
                 var _detectionResults = new AvaloniaList<string>();
                 foreach (RecognitionResult det in detections)
                 {
                     try
                     {
-                        items.Add(InitRect(det));
+                        items.Add(InitRect(det, _imageFilesBitmap[0]));
                         await SaveRecognitionResultAsync(det);
                         _detectionResults.Add($"Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
                     }
@@ -166,7 +165,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                     }
                 }
                 RectItems = items;
-                CurrentImage = _imageFileBitmap;
+                CurrentImage = _imageFilesBitmap[0];
             };
         }
         finally
@@ -175,7 +174,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         }
     }
 
-    private async Task<List<RecognitionResult>> GetRecognitionResults()
+    private async Task<List<RecognitionResult>> GetRecognitionResults(Bitmap file)
     {
         string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
@@ -223,9 +222,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         return new List<RecognitionResult>();
     }
 
-    private RectItem InitRect(RecognitionResult recognitionResult)
+    private RectItem InitRect(RecognitionResult recognitionResult, Bitmap file)
     {
-        if (_imageFileBitmap == null)
+        if (file == null)
         {
             throw new InvalidOperationException("Изображение не загружено.");
         }
@@ -235,8 +234,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             throw new ArgumentException("Некорректные координаты или размеры прямоугольника.");
         }
 
-        double widthImage = _imageFileBitmap.Size.Width;
-        double heightImage = _imageFileBitmap.Size.Height;
+        double widthImage = file.Size.Width;
+        double heightImage = file.Size.Height;
 
         if (widthImage <= 0 || heightImage <= 0)
         {
@@ -257,11 +256,11 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             heightImage /= k2;
         }
 
-        double xCenter = widthImage * (recognitionResult.X / _imageFileBitmap.Size.Width) + (1000 - widthImage) / 2;
-        double yCenter = heightImage * (recognitionResult.Y / _imageFileBitmap.Size.Height) + (500 - heightImage) / 2;
+        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (1000 - widthImage) / 2;
+        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (500 - heightImage) / 2;
 
-        int width = (int)(widthImage * (recognitionResult.Width / _imageFileBitmap.Size.Width));
-        int height = (int)(heightImage * (recognitionResult.Height / _imageFileBitmap.Size.Height));
+        int width = (int)(widthImage * (recognitionResult.Width / file.Size.Width));
+        int height = (int)(heightImage * (recognitionResult.Height / file.Size.Height));
 
         int x = (int)(xCenter - width / 2);
         int y = (int)(yCenter - height / 2);
@@ -285,10 +284,58 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         };
     }
 
-
     private async Task OpenFolder()
     {
-        ;
+        try
+        {
+            var files = await _filesService.OpenImageFolderAsync();
+            if (files != null)
+            {
+                var filesBitmap = new List<Bitmap>();
+                foreach (var file in files)
+                {
+                    var fileBitmap = new Bitmap(await file.OpenReadAsync());
+                    filesBitmap.Add(fileBitmap);
+                }
+                _imageFilesBitmap = filesBitmap;
+
+                CurrentImage = _imageFilesBitmap[0];
+                _currentNumberOfImage = 0;
+            }
+        }
+        catch
+        {
+            ShowMessageBox("Ошибка", "В выбранной дирректории отсутвуют изображения или пристуствуют файлы с недопустимым расширением");
+            return;
+        }
+    }
+
+    private void NextImage()
+    {
+        if (_currentNumberOfImage < _imageFilesBitmap.Count - 1)
+        {
+            _currentNumberOfImage++;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        }
+        else
+        {
+            _currentNumberOfImage = 0;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        }
+    }
+
+    private void PreviousImage()
+    {
+        if(_currentNumberOfImage > 0)
+        {
+            _currentNumberOfImage--;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        }
+        else
+        {
+            _currentNumberOfImage = _imageFilesBitmap.Count - 1;
+            CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        }
     }
 
     private async Task CheckHealth()
