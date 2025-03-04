@@ -4,8 +4,6 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using ClassLibrary.Database;
 using ClassLibrary.Database.Models;
-using DynamicData;
-using DynamicData.Kernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,11 +13,9 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -36,6 +32,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private List<IStorageFile>? _imageFiles = new();
 
+    private string _currentImageName;
+
     private FilesService _filesService;
 
     private readonly IConfiguration _configuration;
@@ -43,6 +41,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private IServiceProvider _serviceProvider;
 
     private ISolidColorBrush _connectionStatus;
+
+    private bool _canSwitchImages;
 
     private bool _isLoading;
 
@@ -79,6 +79,10 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Properties
+    public int ImageWidth { get; } = 800;
+
+    public int ImageHeight { get; } = 400;
+
     public AvaloniaList<RectItem> RectItems
     {
         get => _rectItems;
@@ -91,10 +95,22 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         set => this.RaiseAndSetIfChanged(ref _currentImage, value);
     }
 
+    public string CurrentImageName
+    {
+        get => _currentImageName;
+        set => this.RaiseAndSetIfChanged(ref _currentImageName, value);
+    }
+
     public ISolidColorBrush ConnectionStatus
     {
         get => _connectionStatus;
         private set => this.RaiseAndSetIfChanged(ref _connectionStatus, value);
+    }
+
+    public bool CanSwitchImages
+    {
+        get => _canSwitchImages;
+        set => this.RaiseAndSetIfChanged(ref _canSwitchImages, value);
     }
 
     public bool IsLoading
@@ -114,6 +130,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         set => this.RaiseAndSetIfChanged(ref _detectionResults, value);
     }
     #endregion
+
     #region Constructors
     public MainViewModel(IScreen screen, FilesService filesService, IConfiguration configuration, IServiceProvider serviceProvider)
     {
@@ -125,6 +142,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         ConnectionStatus = Brushes.Gray;
         AreButtonsEnabled = false;
         _detectionResults = new AvaloniaList<string>();
+
+        CanSwitchImages = false;
 
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealthAsync);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFileAsync);
@@ -143,15 +162,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             var file = await _filesService.OpenImageFileAsync();
             if (file != null)
             {
-                _imageFiles = [file];
-                _imageFilesBitmap = [new Bitmap(await file.OpenReadAsync())];
-
-                List<RecognitionResult> detections = await GetRecognitionResultsAsync(_imageFiles[0]);
-
-                var items = await GetDetectionResultsAsync(_imageFiles[0], _imageFilesBitmap[0]);
-                RectItems = items;
-                CurrentImage = _imageFilesBitmap[0];
-            };
+                await InitImagesAsync(new List<IStorageFile> { file });
+                CanSwitchImages = false;
+            }
         }
         finally
         {
@@ -249,8 +262,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             throw new InvalidOperationException("Некорректные размеры изображения.");
         }
 
-        double k1 = widthImage / 1250;
-        double k2 = heightImage / 600;
+        double k1 = widthImage / ImageWidth;
+        double k2 = heightImage / ImageHeight;
 
         if (k1 > k2)
         {
@@ -263,8 +276,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             heightImage /= k2;
         }
 
-        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (1250 - widthImage) / 2;
-        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (600 - heightImage) / 2;
+        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (ImageWidth - widthImage) / 2;
+        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (ImageHeight - heightImage) / 2;
 
         int width = (int)(widthImage * (recognitionResult.Width / file.Size.Width));
         int height = (int)(heightImage * (recognitionResult.Height / file.Size.Height));
@@ -296,24 +309,10 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         try
         {
             var files = await _filesService.OpenImageFolderAsync();
-            _imageFiles = files;
             if (files != null)
             {
-                var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
-                var filesBitmap = new List<Bitmap>();
-                foreach (var file in files)
-                {
-                    var fileBitmap = new Bitmap(await file.OpenReadAsync());
-                    filesBitmap.Add(fileBitmap);
-
-                    var results = await GetDetectionResultsAsync(file, fileBitmap);
-                    itemsLists.Add(results);
-                }
-                _imageFilesBitmap = filesBitmap;
-                _rectItemsLists = itemsLists;
-
-                _currentNumberOfImage = 0;
-                SetImage();
+                await InitImagesAsync(files);
+                CanSwitchImages = true;
             }
         }
         catch
@@ -321,6 +320,27 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             ShowMessageBox("Ошибка", "В выбранной дирректории отсутвуют изображения или пристуствуют файлы с недопустимым расширением");
             return;
         }
+    }
+
+    private async Task InitImagesAsync(List<IStorageFile> files)
+    {
+        var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
+        var filesBitmap = new List<Bitmap>();
+        foreach (var file in files)
+        {
+            var fileBitmap = new Bitmap(await file.OpenReadAsync());
+            filesBitmap.Add(fileBitmap);
+
+            var results = await GetDetectionResultsAsync(file, fileBitmap);
+            itemsLists.Add(results);
+        }
+
+        _imageFilesBitmap = filesBitmap;
+        _rectItemsLists = itemsLists;
+        _imageFiles = files;
+
+        _currentNumberOfImage = 0;
+        SetImage();
     }
 
     private void NextImage()
@@ -341,6 +361,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private void SetImage()
     {
+        CurrentImageName = _imageFiles[_currentNumberOfImage].Name;
         CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
         RectItems = _rectItemsLists[_currentNumberOfImage];
     }
@@ -386,6 +407,22 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         }
     }
 
+    private async Task SaveRecognitionResultAsync(RecognitionResult recognitionResult)
+    {
+        using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
+        db.RecognitionResults.AddRange(recognitionResult);
+        await db.SaveChangesAsync();
+    }
+
+    private void OnImageError()
+    {
+        CurrentImageName = null;
+        CurrentImage = null;
+        RectItems = null;
+    }
+    #endregion
+
+    #region Public Methods
     /// <summary>
     /// Показывает всплывающее сообщение.
     /// </summary>
@@ -398,15 +435,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     }
     #endregion
 
-    #region Private Methods
-    private async Task SaveRecognitionResultAsync(RecognitionResult recognitionResult)
-    { 
-        using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
-        db.RecognitionResults.AddRange(recognitionResult);
-        await db.SaveChangesAsync();
-    }
-    #endregion
-
+    #region Classes
     private class HealthCheckResponse
     {
         [JsonPropertyName("status_code")]
@@ -439,4 +468,5 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         [JsonPropertyName("object_bbox")]
         public List<InferenceResult> ObjectBbox { get; set; }
     }
+    #endregion
 }
