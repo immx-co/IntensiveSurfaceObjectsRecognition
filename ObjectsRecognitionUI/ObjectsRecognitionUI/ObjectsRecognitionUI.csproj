@@ -9,8 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Remove="Models\**" />
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +36,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+    <PackageReference Include="OpenCvSharp4" Version="4.10.0.20241108" />
+    <PackageReference Include="OpenCvSharp4.Extensions" Version="4.10.0.20241108" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
     <PackageReference Include="ReactiveUI" Version="20.1.63" />
   </ItemGroup>
 

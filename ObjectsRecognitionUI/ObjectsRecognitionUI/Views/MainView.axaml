@@ -14,7 +14,7 @@
 		<StackPanel VerticalAlignment="Center">
 			<StackPanel HorizontalAlignment="Center"
 						Margin="0 0 0 10">
-				<TextBlock Text="{Binding CurrentImageName}"
+				<TextBlock Text="{Binding CurrentFileName}"
 						 FontSize="20"/>
 			</StackPanel>
 			<StackPanel HorizontalAlignment="Center" 
@@ -94,6 +94,7 @@
 								IsEnabled="{Binding AreButtonsEnabled}"
 								Margin="0 0 5 0"/>
 						<Button Content="Отправить видео"
+								Command="{Binding SendVideoCommand}"
 								IsEnabled="{Binding AreButtonsEnabled}"
 								Margin="0 0 5 0"/>
 						<Button Content="Подключиться"

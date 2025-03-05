@@ -60,6 +60,7 @@ namespace ObjectsRecognitionUI
                 servicesCollection.AddSingleton<ConfigurationViewModel>();
 
                 servicesCollection.AddTransient<FilesService>();
+                servicesCollection.AddTransient<VideoService>();
 
                 servicesCollection.AddDbContext<ApplicationContext>(options => options.UseNpgsql(configuration.GetConnectionString("dbStringConnection")), ServiceLifetime.Transient);
 

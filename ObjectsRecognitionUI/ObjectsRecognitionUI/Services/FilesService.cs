@@ -57,4 +57,16 @@ public class FilesService
 
         return folders.Count >= 1 ? folders[0] : null;
     }
+
+    public async Task<IStorageFile?> OpenVideoFileAsync()
+    {
+        var files = await Target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+        {
+            Title = "Open Video File",
+            FileTypeFilter = [new FilePickerFileType("Video") { Patterns = ["*.mp4"] }],
+            AllowMultiple = false
+        });
+
+        return files.Count >= 1 ? files[0] : null;
+    }
 }

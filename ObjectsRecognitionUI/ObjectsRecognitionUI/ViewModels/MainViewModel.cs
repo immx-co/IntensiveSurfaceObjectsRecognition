@@ -13,6 +13,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive;
@@ -32,9 +33,15 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private List<IStorageFile>? _imageFiles = new();
 
-    private string _currentImageName;
+    private IStorageFile? _videoFile;
+
+    private List<Bitmap?> _frames = new();
+
+    private string _currentFileName;
 
     private FilesService _filesService;
+
+    private VideoService _videoService;
 
     private readonly IConfiguration _configuration;
 
@@ -48,6 +55,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private bool _areButtonsEnabled;
 
+    private bool _isVideoSelected = false;
+
     private AvaloniaList<string> _detectionResults;
 
     private AvaloniaList<RectItem> _rectItems;
@@ -55,6 +64,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private AvaloniaList<AvaloniaList<RectItem>> _rectItemsLists;
 
     private int _currentNumberOfImage;
+
+    private int _currentNumberOfFrame;
     #endregion
 
     #region View Model Settings
@@ -95,10 +106,10 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         set => this.RaiseAndSetIfChanged(ref _currentImage, value);
     }
 
-    public string CurrentImageName
+    public string CurrentFileName
     {
-        get => _currentImageName;
-        set => this.RaiseAndSetIfChanged(ref _currentImageName, value);
+        get => _currentFileName;
+        set => this.RaiseAndSetIfChanged(ref _currentFileName, value);
     }
 
     public ISolidColorBrush ConnectionStatus
@@ -132,10 +143,16 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Constructors
-    public MainViewModel(IScreen screen, FilesService filesService, IConfiguration configuration, IServiceProvider serviceProvider)
+    public MainViewModel(
+        IScreen screen, 
+        FilesService filesService, 
+        IConfiguration configuration, 
+        IServiceProvider serviceProvider,
+        VideoService videoService)
     {
         HostScreen = screen;
         _filesService = filesService;
+        _videoService = videoService;
         _configuration = configuration;
         _serviceProvider = serviceProvider;
 
@@ -148,12 +165,15 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealthAsync);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFileAsync);
         SendFolderCommand = ReactiveCommand.CreateFromTask(OpenFolderAsync);
-        ImageBackCommand = ReactiveCommand.Create(PreviousImage);
-        ImageForwardCommand = ReactiveCommand.Create(NextImage);
+        ImageBackCommand = ReactiveCommand.Create(Previous);
+        ImageForwardCommand = ReactiveCommand.Create(Next);
+        SendVideoCommand = ReactiveCommand.CreateFromTask(OpenVideoAsync);
     }
     #endregion
 
     #region Private Methods
+
+    #region Command Methods
     private async Task OpenImageFileAsync()
     {
         try
@@ -164,6 +184,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             {
                 await InitImagesAsync(new List<IStorageFile> { file });
                 CanSwitchImages = false;
+                _isVideoSelected = false;
             }
         }
         finally
@@ -172,9 +193,74 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         }
     }
 
-    private async Task<AvaloniaList<RectItem>> GetDetectionResultsAsync(IStorageFile file, Bitmap fileBitmap)
+    private async Task OpenFolderAsync()
     {
-        List<RecognitionResult> detections = await GetRecognitionResultsAsync(file);
+        try
+        {
+            var files = await _filesService.OpenImageFolderAsync();
+            if (files != null)
+            {
+                await InitImagesAsync(files);
+                CanSwitchImages = true;
+                _isVideoSelected = false;
+            }
+        }
+        catch
+        {
+            ShowMessageBox("Error", "В выбранной дирректории отсутвуют изображения или пристуствуют файлы с недопустимым расширением");
+            return;
+        }
+    }
+
+    private async Task OpenVideoAsync()
+    {
+        var file = await _filesService.OpenVideoFileAsync();
+        if (file != null)
+        {
+            await InitFramesAsync(file);
+            CanSwitchImages = true;
+            _isVideoSelected = true;
+        }
+    }
+
+    private void Next()
+    {
+        if (_isVideoSelected) NextFrame();
+        else NextImage();
+    }
+
+    private void Previous()
+    {
+        if (_isVideoSelected) PreviousFrame();
+        else PreviousImage();
+    }
+    #endregion
+
+    #region Image Methods
+    private async Task InitImagesAsync(List<IStorageFile> files)
+    {
+        var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
+        var filesBitmap = new List<Bitmap>();
+        foreach (var file in files)
+        {
+            var fileBitmap = new Bitmap(await file.OpenReadAsync());
+            filesBitmap.Add(fileBitmap);
+
+            var results = await GetImageDetectionResultsAsync(file, fileBitmap);
+            itemsLists.Add(results);
+        }
+
+        _imageFilesBitmap = filesBitmap;
+        _rectItemsLists = itemsLists;
+        _imageFiles = files;
+
+        _currentNumberOfImage = 0;
+        SetImage();
+    }
+
+    private async Task<AvaloniaList<RectItem>> GetImageDetectionResultsAsync(IStorageFile file, Bitmap fileBitmap)
+    {
+        List<RecognitionResult> detections = await GetImageRecognitionResultsAsync(file);
         var items = new AvaloniaList<RectItem>();
         var detectionResults = new AvaloniaList<string>();
         foreach (RecognitionResult det in detections)
@@ -194,7 +280,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         return items;
     }
 
-    private async Task<List<RecognitionResult>> GetRecognitionResultsAsync(IStorageFile file)
+    private async Task<List<RecognitionResult>> GetImageRecognitionResultsAsync(IStorageFile file)
     {
         string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
@@ -242,25 +328,149 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         return new List<RecognitionResult>();
     }
 
+    private void NextImage()
+    {
+        if (_currentNumberOfImage < _imageFilesBitmap.Count - 1) _currentNumberOfImage++;
+        else _currentNumberOfImage = 0;
+
+        SetImage();
+    }
+
+    private void PreviousImage()
+    {
+        if (_currentNumberOfImage > 0) _currentNumberOfImage--;
+        else _currentNumberOfImage = _imageFilesBitmap.Count - 1;
+
+        SetImage();
+    }
+
+    private void SetImage()
+    {
+        CurrentFileName = _imageFiles[_currentNumberOfImage].Name;
+        CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
+        RectItems = _rectItemsLists[_currentNumberOfImage];
+    }
+    #endregion
+
+    #region Video Methods
+    private async Task InitFramesAsync(IStorageFile file)
+    {
+        var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
+        var frames = await _videoService.GetFramesAsync(file);
+        for (int i = 0; i < frames.Count; i++)
+        {
+            var results = await GetFrameDetectionResultsAsync(frames[i], i + 1);
+            itemsLists.Add(results);
+        }
+
+        _videoFile = file;
+        _rectItemsLists = itemsLists;
+        _frames = frames;
+
+        CurrentFileName = file.Name;
+        _currentNumberOfFrame = 0;
+        SetFrame();
+    }
+
+    private async Task<AvaloniaList<RectItem>> GetFrameDetectionResultsAsync(Bitmap frame, int numberOfFrame)
+    {
+        List<RecognitionResult> detections = await GetFrameRecognitionResultsAsync(frame, numberOfFrame);
+        var items = new AvaloniaList<RectItem>();
+        var detectionResults = new AvaloniaList<string>();
+        foreach (RecognitionResult det in detections)
+        {
+            try
+            {
+                items.Add(InitRect(det, frame));
+                await SaveRecognitionResultAsync(det);
+                detectionResults.Add($"Событие: Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
+            }
+        }
+        DetectionResults = detectionResults;
+        return items;
+    }
+
+    private async Task<List<RecognitionResult>> GetFrameRecognitionResultsAsync(Bitmap frame, int numberOfFrame)
+    {
+        string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
+        using (var client = new HttpClient())
+        {
+            try
+            {
+                using (MemoryStream imageStream = new())
+                {
+                    frame.Save(imageStream);
+                    var content = new MultipartFormDataContent();
+                    var imageContent = new StreamContent(imageStream);
+                    imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                    content.Add(imageContent, "image", $"frame{numberOfFrame}");
+
+                    var response = await client.PostAsync($"{surfaceRecognitionServiceAddress}/inference", content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<DetectedAndClassifiedObject>(jsonResponse);
+
+                        if (result?.ObjectBbox != null)
+                        {
+                            return result.ObjectBbox.Select(bbox => new RecognitionResult
+                            {
+                                ClassName = bbox.ClassName,
+                                X = bbox.X,
+                                Y = bbox.Y,
+                                Width = bbox.Width,
+                                Height = bbox.Height
+                            }).ToList();
+                        }
+                    }
+                    else
+                    {
+                        ShowMessageBox("Error", $"Ошибка при отправке видео: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBox("Error", $"Ошибка при отправке видео: {ex.Message}");
+            }
+        }
+
+        return new List<RecognitionResult>();
+    }
+
+    private void NextFrame()
+    {
+        if (_currentNumberOfFrame < _frames.Count - 1) _currentNumberOfFrame++;
+        else _currentNumberOfFrame = 0;
+
+        SetFrame();
+    }
+
+    private void PreviousFrame()
+    {
+        if (_currentNumberOfFrame > 0) _currentNumberOfFrame--;
+        else _currentNumberOfFrame = _frames.Count - 1;
+
+        SetFrame();
+    }
+
+    private void SetFrame()
+    {
+        CurrentImage = _frames[_currentNumberOfFrame];
+        RectItems = _rectItemsLists[_currentNumberOfFrame];
+    }
+    #endregion
+
+    #region Rect Drawing Methods
     private RectItem InitRect(RecognitionResult recognitionResult, Bitmap file)
     {
-        if (file == null)
-        {
-            throw new InvalidOperationException("Изображение не загружено.");
-        }
-
-        if (recognitionResult.X < 0 || recognitionResult.Y < 0 || recognitionResult.Width <= 0 || recognitionResult.Height <= 0)
-        {
-            throw new ArgumentException("Некорректные координаты или размеры прямоугольника.");
-        }
-
         double widthImage = file.Size.Width;
         double heightImage = file.Size.Height;
-
-        if (widthImage <= 0 || heightImage <= 0)
-        {
-            throw new InvalidOperationException("Некорректные размеры изображения.");
-        }
 
         double k1 = widthImage / ImageWidth;
         double k2 = heightImage / ImageHeight;
@@ -303,69 +513,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             Color = color
         };
     }
+    #endregion
 
-    private async Task OpenFolderAsync()
-    {
-        try
-        {
-            var files = await _filesService.OpenImageFolderAsync();
-            if (files != null)
-            {
-                await InitImagesAsync(files);
-                CanSwitchImages = true;
-            }
-        }
-        catch
-        {
-            ShowMessageBox("Ошибка", "В выбранной дирректории отсутвуют изображения или пристуствуют файлы с недопустимым расширением");
-            return;
-        }
-    }
-
-    private async Task InitImagesAsync(List<IStorageFile> files)
-    {
-        var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
-        var filesBitmap = new List<Bitmap>();
-        foreach (var file in files)
-        {
-            var fileBitmap = new Bitmap(await file.OpenReadAsync());
-            filesBitmap.Add(fileBitmap);
-
-            var results = await GetDetectionResultsAsync(file, fileBitmap);
-            itemsLists.Add(results);
-        }
-
-        _imageFilesBitmap = filesBitmap;
-        _rectItemsLists = itemsLists;
-        _imageFiles = files;
-
-        _currentNumberOfImage = 0;
-        SetImage();
-    }
-
-    private void NextImage()
-    {
-        if (_currentNumberOfImage < _imageFilesBitmap.Count - 1) _currentNumberOfImage++;
-        else _currentNumberOfImage = 0;
-
-        SetImage();
-    }
-
-    private void PreviousImage()
-    {
-        if(_currentNumberOfImage > 0) _currentNumberOfImage--;
-        else _currentNumberOfImage = _imageFilesBitmap.Count - 1;
-
-        SetImage();
-    }
-
-    private void SetImage()
-    {
-        CurrentImageName = _imageFiles[_currentNumberOfImage].Name;
-        CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
-        RectItems = _rectItemsLists[_currentNumberOfImage];
-    }
-
+    #region Client Methods
     private async Task CheckHealthAsync()
     {
         AreButtonsEnabled = false;
@@ -406,20 +556,17 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             }
         }
     }
+    #endregion
 
+    #region Data Base Methods
     private async Task SaveRecognitionResultAsync(RecognitionResult recognitionResult)
     {
         using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
         db.RecognitionResults.AddRange(recognitionResult);
         await db.SaveChangesAsync();
     }
+    #endregion
 
-    private void OnImageError()
-    {
-        CurrentImageName = null;
-        CurrentImage = null;
-        RectItems = null;
-    }
     #endregion
 
     #region Public Methods
