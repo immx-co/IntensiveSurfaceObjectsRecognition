@@ -90,10 +90,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Properties
-    public int ImageWidth { get; } = 800;
-
-    public int ImageHeight { get; } = 400;
-
     public AvaloniaList<RectItem> RectItems
     {
         get => _rectItems;
@@ -472,8 +468,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         double widthImage = file.Size.Width;
         double heightImage = file.Size.Height;
 
-        double k1 = widthImage / ImageWidth;
-        double k2 = heightImage / ImageHeight;
+        double k1 = widthImage / 800;
+        double k2 = heightImage / 400;
 
         if (k1 > k2)
         {
@@ -486,8 +482,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             heightImage /= k2;
         }
 
-        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (ImageWidth - widthImage) / 2;
-        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (ImageHeight - heightImage) / 2;
+        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (800 - widthImage) / 2;
+        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (400 - heightImage) / 2;
 
         int width = (int)(widthImage * (recognitionResult.Width / file.Size.Width));
         int height = (int)(heightImage * (recognitionResult.Height / file.Size.Height));

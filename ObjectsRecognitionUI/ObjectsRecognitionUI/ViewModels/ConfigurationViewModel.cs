@@ -18,6 +18,8 @@ namespace ObjectsRecognitionUI.ViewModels
 
         private string _url;
 
+        private int _frameRate;
+
         private readonly IConfiguration _configuration;
         #endregion
 
@@ -33,6 +35,7 @@ namespace ObjectsRecognitionUI.ViewModels
         public ReactiveCommand<Unit, Unit> SaveConfigCommand { get; }
         #endregion
 
+        #region Properties
         public string ConnectionString
         {
             get => _connectionString;
@@ -45,6 +48,14 @@ namespace ObjectsRecognitionUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _url, value);
         }
 
+        public int FrameRate
+        {
+            get => _frameRate;
+            set => this.RaiseAndSetIfChanged(ref _frameRate, value);
+        }
+        #endregion
+
+        #region Constructors
         public ConfigurationViewModel(IScreen screen, IConfiguration configuration)
         {
             HostScreen = screen;
@@ -52,10 +63,13 @@ namespace ObjectsRecognitionUI.ViewModels
 
             ConnectionString = _configuration.GetConnectionString("dbStringConnection");
             Url = _configuration.GetConnectionString("srsStringConnection");
+            //FrameRate = _configuration.GetSection<int>("FrameRate:Value");
 
             SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig);
         }
+        #endregion
 
+        #region Private Methods
         private async Task SaveConfig()
         {
             try
@@ -80,7 +94,9 @@ namespace ObjectsRecognitionUI.ViewModels
                 ShowMessageBox("Failed", "Возникла ошибка при сохранении конфигурации.");
             }
         }
+        #endregion
 
+        #region Public Methods
         /// <summary>
         /// Показывает всплывающее сообщение.
         /// </summary>
@@ -91,5 +107,6 @@ namespace ObjectsRecognitionUI.ViewModels
             var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandard(caption, message);
             messageBoxStandardWindow.ShowAsync();
         }
+        #endregion
     }
 }

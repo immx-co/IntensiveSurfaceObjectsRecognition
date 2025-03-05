@@ -27,8 +27,8 @@
 				<Grid Width="800"
 					  Height="400">
 					<Border Background="Gainsboro">
-						<Image MaxWidth="{Binding ImageWidth}"
-							   MaxHeight="{Binding ImageHeight}"
+						<Image MaxWidth="800"
+							   MaxHeight="400"
 							   Source="{Binding CurrentImage}"
 							   RenderOptions.BitmapInterpolationMode="HighQuality">
 						</Image>
@@ -39,8 +39,8 @@
 									<Canvas>
 										<Border BorderBrush="{Binding Color}"
 												BorderThickness="2"
-												Width="800"
-												Height="400"
+												Width="{Binding Width}"
+												Height="{Binding Height}"
 												Canvas.Left="{Binding X}"
 												Canvas.Top="{Binding Y}"/>
 									</Canvas>
