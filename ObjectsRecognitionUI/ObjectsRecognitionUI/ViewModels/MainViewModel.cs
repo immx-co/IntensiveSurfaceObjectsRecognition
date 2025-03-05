@@ -57,6 +57,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private AvaloniaList<AvaloniaList<RectItem>> _rectItemsLists;
 
     private int _currentNumberOfImage;
+
+    private AvaloniaList<LegendItem> _legendItems;
     #endregion
 
     #region View Model Settings
@@ -121,6 +123,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         get => _detectionResults;
         set => this.RaiseAndSetIfChanged(ref _detectionResults, value);
     }
+
+    public AvaloniaList<LegendItem> LegendItems
+    {
+        get => _legendItems;
+        set => this.RaiseAndSetIfChanged(ref _legendItems, value);
+    }
     #endregion
 
     #region Constructors
@@ -134,6 +142,15 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         ConnectionStatus = Brushes.Gray;
         AreButtonsEnabled = false;
         _detectionResults = new AvaloniaList<string>();
+
+        _legendItems = new AvaloniaList<LegendItem>
+        {
+            new LegendItem { ClassName = "human", Color = "Green" },
+            new LegendItem { ClassName = "wind/sup-board", Color = "Red" },
+            new LegendItem { ClassName = "bouy", Color = "Blue" },
+            new LegendItem { ClassName = "sailboat", Color = "Yellow" },
+            new LegendItem { ClassName = "kayak", Color = "Purple" }
+        };
 
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealthAsync);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFileAsync);
@@ -420,6 +437,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                             ConnectionStatus = Brushes.Red;
                             ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
                         });
+                        break;
                     }
                 }
                 catch (Exception)
@@ -490,5 +508,11 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         [JsonPropertyName("object_bbox")]
         public List<InferenceResult> ObjectBbox { get; set; }
+    }
+
+    public class LegendItem
+    {
+        public string ClassName { get; set; }
+        public string Color { get; set; }
     }
 }
