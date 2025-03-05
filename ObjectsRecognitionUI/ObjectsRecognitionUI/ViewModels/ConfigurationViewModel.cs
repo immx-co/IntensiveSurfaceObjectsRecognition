@@ -63,7 +63,7 @@ namespace ObjectsRecognitionUI.ViewModels
 
             ConnectionString = _configuration.GetConnectionString("dbStringConnection");
             Url = _configuration.GetConnectionString("srsStringConnection");
-            //FrameRate = _configuration.GetSection<int>("FrameRate:Value");
+            FrameRate = Convert.ToInt32(_configuration.GetSection("FrameRate:Value").Value);
 
             SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig);
         }
@@ -82,6 +82,7 @@ namespace ObjectsRecognitionUI.ViewModels
 
                 appSettings.ConnectionStrings.dbStringConnection = ConnectionString;
                 appSettings.ConnectionStrings.srsStringConnection = Url;
+                appSettings.FrameRate.Value = FrameRate;
 
                 var updatedJson = JsonSerializer.Serialize(appSettings, new JsonSerializerOptions { WriteIndented = true });
 

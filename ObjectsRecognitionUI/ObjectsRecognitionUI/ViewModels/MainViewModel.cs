@@ -400,10 +400,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 using (MemoryStream imageStream = new())
                 {
                     frame.Save(imageStream);
+                    imageStream.Seek(0, SeekOrigin.Begin);
+
                     var content = new MultipartFormDataContent();
                     var imageContent = new StreamContent(imageStream);
                     imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
-                    content.Add(imageContent, "image", $"frame{numberOfFrame}");
+                    content.Add(imageContent, "image", $"frame{numberOfFrame}.img");
 
                     var response = await client.PostAsync($"{surfaceRecognitionServiceAddress}/inference", content);
 
