@@ -201,8 +201,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     }
     #endregion
 
-    #region Private Methods
-
     #region Command Methods
     private async Task OpenImageFileAsync()
     {
@@ -637,8 +635,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 
         }
     }
-        }
-    }
     #endregion
 
     #region Data Base Methods
@@ -648,8 +644,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         db.RecognitionResults.AddRange(recognitionResult);
         await db.SaveChangesAsync();
     }
-    #endregion
-
     #endregion
 
     #region Public Methods
