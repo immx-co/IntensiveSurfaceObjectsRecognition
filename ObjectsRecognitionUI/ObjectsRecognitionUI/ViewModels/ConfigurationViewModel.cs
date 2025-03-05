@@ -18,6 +18,8 @@ namespace ObjectsRecognitionUI.ViewModels
 
         private string _url;
 
+        private int _neuralWatcherTimeout;
+
         private readonly IConfiguration _configuration;
         #endregion
 
@@ -45,6 +47,12 @@ namespace ObjectsRecognitionUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _url, value);
         }
 
+        public int NeuralWatcherTimeout
+        {
+            get => _neuralWatcherTimeout;
+            set => this.RaiseAndSetIfChanged(ref _neuralWatcherTimeout, value);
+        }
+
         public ConfigurationViewModel(IScreen screen, IConfiguration configuration)
         {
             HostScreen = screen;
@@ -52,6 +60,7 @@ namespace ObjectsRecognitionUI.ViewModels
 
             ConnectionString = _configuration.GetConnectionString("dbStringConnection");
             Url = _configuration.GetConnectionString("srsStringConnection");
+            NeuralWatcherTimeout = _configuration.GetSection("NeuralWatcherTimeout").Get<int>();
 
             SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig);
         }
@@ -68,6 +77,7 @@ namespace ObjectsRecognitionUI.ViewModels
 
                 appSettings.ConnectionStrings.dbStringConnection = ConnectionString;
                 appSettings.ConnectionStrings.srsStringConnection = Url;
+                appSettings.NeuralWatcherTimeout = NeuralWatcherTimeout;
 
                 var updatedJson = JsonSerializer.Serialize(appSettings, new JsonSerializerOptions { WriteIndented = true });
 

@@ -15,10 +15,14 @@
 				<Label Content="Строка подключения к базе данных:"/>
 				<TextBox Text="{Binding ConnectionString}"/>
 			</StackPanel>
-			<StackPanel>
+			<StackPanel Margin="0 0 0 10">
 				<Label Content="URL нейросетевого сервиса:"/>
 				<TextBox Text="{Binding Url}"/>
 			</StackPanel>
+      <StackPanel>
+        <Label Content="Таймаут нейросетевого watcher:"/>
+        <TextBox Text="{Binding NeuralWatcherTimeout}"/>
+      </StackPanel>
 		</StackPanel>
 		<StackPanel VerticalAlignment="Bottom"
 					HorizontalAlignment="Right"

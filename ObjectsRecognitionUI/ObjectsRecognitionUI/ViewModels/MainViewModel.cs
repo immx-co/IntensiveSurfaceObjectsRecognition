@@ -48,6 +48,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private bool _areButtonsEnabled;
 
+    private bool _areConnectButtonEnabled = true;
+
     private AvaloniaList<string> _detectionResults;
 
     private AvaloniaList<RectItem> _rectItems;
@@ -108,12 +110,19 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         private set => this.RaiseAndSetIfChanged(ref _areButtonsEnabled, value);
     }
 
+    public bool AreConnectButtonEnabled
+    {
+        get => _areConnectButtonEnabled;
+        private set => this.RaiseAndSetIfChanged(ref _areConnectButtonEnabled, value);
+    }
+
     public AvaloniaList<string> DetectionResults
     {
         get => _detectionResults;
         set => this.RaiseAndSetIfChanged(ref _detectionResults, value);
     }
     #endregion
+
     #region Constructors
     public MainViewModel(IScreen screen, FilesService filesService, IConfiguration configuration, IServiceProvider serviceProvider)
     {
@@ -347,7 +356,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private async Task CheckHealthAsync()
     {
-        AreButtonsEnabled = false;
         ConnectionStatus = Brushes.Red;
         string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
@@ -364,7 +372,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                     {
                         ConnectionStatus = Brushes.Green;
                         AreButtonsEnabled = true;
+                        AreConnectButtonEnabled = false;
                         ShowMessageBox("Success", $"Сервис доступен. Статус: {healthResponse.StatusCode}");
+                        Task.Run(() => StartNeuralServiceWatcher(surfaceRecognitionServiceAddress));
                     }
                     else
                     {
@@ -383,6 +393,48 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 ConnectionStatus = Brushes.Red;
                 ShowMessageBox("Failed", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
             }
+        }
+    }
+
+    private async void StartNeuralServiceWatcher(string surfaceRecognitionServiceAddress)
+    {
+        int neuralWatcherTimeout = _configuration.GetSection("NeuralWatcherTimeout").Get<int>();
+        while (true)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(neuralWatcherTimeout));
+                    var response = await client.GetAsync($"{surfaceRecognitionServiceAddress}/health");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            AreConnectButtonEnabled = true;
+                            AreButtonsEnabled = false;
+                            ConnectionStatus = Brushes.Red;
+                            ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
+                        });
+                    }
+                }
+                catch (Exception)
+                {
+                    await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        AreConnectButtonEnabled = true;
+                        AreButtonsEnabled = false;
+                        ConnectionStatus = Brushes.Red;
+                        ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
+                    });
+                    break;
+                }
+            }
+                
         }
     }
 
