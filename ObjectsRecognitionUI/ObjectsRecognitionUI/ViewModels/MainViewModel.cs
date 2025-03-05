@@ -17,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive;
+using System.Reactive.Subjects;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -38,6 +39,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private List<Bitmap?> _frames = new();
 
     private string _currentFileName;
+
+    private string _frameTitle;
 
     private FilesService _filesService;
 
@@ -106,6 +109,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         get => _currentFileName;
         set => this.RaiseAndSetIfChanged(ref _currentFileName, value);
+    }
+
+    public string FrameTitle
+    {
+        get => _frameTitle;
+        set => this.RaiseAndSetIfChanged(ref _frameTitle, value);
     }
 
     public ISolidColorBrush ConnectionStatus
@@ -181,6 +190,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 await InitImagesAsync(new List<IStorageFile> { file });
                 CanSwitchImages = false;
                 _isVideoSelected = false;
+                FrameTitle = String.Empty;
             }
         }
         finally
@@ -199,6 +209,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 await InitImagesAsync(files);
                 CanSwitchImages = true;
                 _isVideoSelected = false;
+                FrameTitle = String.Empty;
             }
         }
         catch
@@ -216,6 +227,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             await InitFramesAsync(file);
             CanSwitchImages = true;
             _isVideoSelected = true;
+            FrameTitle = $"Кадр: {_currentNumberOfFrame + 1} из {_frames.Count}";
         }
     }
 
@@ -461,6 +473,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         CurrentImage = _frames[_currentNumberOfFrame];
         RectItems = _rectItemsLists[_currentNumberOfFrame];
+
+        FrameTitle = $"Кадр: {_currentNumberOfFrame + 1} из {_frames.Count}";
     }
     #endregion
 

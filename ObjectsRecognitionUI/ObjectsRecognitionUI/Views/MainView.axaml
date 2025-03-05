@@ -13,9 +13,13 @@
 	<Grid>
 		<StackPanel VerticalAlignment="Center">
 			<StackPanel HorizontalAlignment="Center"
+						Orientation="Horizontal"
 						Margin="0 0 0 10">
 				<TextBlock Text="{Binding CurrentFileName}"
-						 FontSize="20"/>
+						   FontSize="20"
+						   Margin="0 0 10 0"/>
+				<TextBlock Text="{Binding FrameTitle}"
+						   FontSize="20"/>
 			</StackPanel>
 			<StackPanel HorizontalAlignment="Center" 
 						Orientation="Horizontal">
