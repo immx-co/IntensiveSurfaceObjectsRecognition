@@ -58,6 +58,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private bool _areButtonsEnabled;
 
+    private bool _areConnectButtonEnabled = true;
+
     private bool _isVideoSelected = false;
 
     private AvaloniaList<string> _detectionResults;
@@ -67,6 +69,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private AvaloniaList<AvaloniaList<RectItem>> _rectItemsLists;
 
     private int _currentNumberOfImage;
+
+    private AvaloniaList<LegendItem> _legendItems;
 
     private int _currentNumberOfFrame;
     #endregion
@@ -140,10 +144,22 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         private set => this.RaiseAndSetIfChanged(ref _areButtonsEnabled, value);
     }
 
+    public bool AreConnectButtonEnabled
+    {
+        get => _areConnectButtonEnabled;
+        private set => this.RaiseAndSetIfChanged(ref _areConnectButtonEnabled, value);
+    }
+
     public AvaloniaList<string> DetectionResults
     {
         get => _detectionResults;
         set => this.RaiseAndSetIfChanged(ref _detectionResults, value);
+    }
+
+    public AvaloniaList<LegendItem> LegendItems
+    {
+        get => _legendItems;
+        set => this.RaiseAndSetIfChanged(ref _legendItems, value);
     }
     #endregion
 
@@ -164,6 +180,15 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         ConnectionStatus = Brushes.Gray;
         AreButtonsEnabled = false;
         _detectionResults = new AvaloniaList<string>();
+
+        _legendItems = new AvaloniaList<LegendItem>
+        {
+            new LegendItem { ClassName = "human", Color = "Green" },
+            new LegendItem { ClassName = "wind/sup-board", Color = "Red" },
+            new LegendItem { ClassName = "bouy", Color = "Blue" },
+            new LegendItem { ClassName = "sailboat", Color = "Yellow" },
+            new LegendItem { ClassName = "kayak", Color = "Purple" }
+        };
 
         CanSwitchImages = false;
 
@@ -530,7 +555,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Client Methods
     private async Task CheckHealthAsync()
     {
-        AreButtonsEnabled = false;
         ConnectionStatus = Brushes.Red;
         string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
@@ -547,7 +571,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                     {
                         ConnectionStatus = Brushes.Green;
                         AreButtonsEnabled = true;
+                        AreConnectButtonEnabled = false;
                         ShowMessageBox("Success", $"Сервис доступен. Статус: {healthResponse.StatusCode}");
+                        Task.Run(() => StartNeuralServiceWatcher(surfaceRecognitionServiceAddress));
                     }
                     else
                     {
@@ -566,6 +592,51 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 ConnectionStatus = Brushes.Red;
                 ShowMessageBox("Failed", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
             }
+        }
+    }
+
+    private async void StartNeuralServiceWatcher(string surfaceRecognitionServiceAddress)
+    {
+        int neuralWatcherTimeout = _configuration.GetSection("NeuralWatcherTimeout").Get<int>();
+        while (true)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(neuralWatcherTimeout));
+                    var response = await client.GetAsync($"{surfaceRecognitionServiceAddress}/health");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            AreConnectButtonEnabled = true;
+                            AreButtonsEnabled = false;
+                            ConnectionStatus = Brushes.Red;
+                            ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
+                        });
+                        break;
+                    }
+                }
+                catch (Exception)
+                {
+                    await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        AreConnectButtonEnabled = true;
+                        AreButtonsEnabled = false;
+                        ConnectionStatus = Brushes.Red;
+                        ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
+                    });
+                    break;
+                }
+            }
+                
+        }
+    }
         }
     }
     #endregion
@@ -626,6 +697,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         [JsonPropertyName("object_bbox")]
         public List<InferenceResult> ObjectBbox { get; set; }
+    }
+
+    public class LegendItem
+    {
+        public string ClassName { get; set; }
+        public string Color { get; set; }
     }
     #endregion
 }

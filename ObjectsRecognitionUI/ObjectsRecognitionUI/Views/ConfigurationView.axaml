@@ -19,6 +19,10 @@
 				<Label Content="URL нейросетевого сервиса:"/>
 				<TextBox Text="{Binding Url}"/>
 			</StackPanel>
+      <StackPanel Margin="0 0 0 10">
+        <Label Content="Таймаут нейросетевого watcher:"/>
+        <TextBox Text="{Binding NeuralWatcherTimeout}"/>
+      </StackPanel>
 			<StackPanel>
 				<Label Content="Частота отправки кадров на нейросетевой сервис:"/>
 				<NumericUpDown Minimum="1"

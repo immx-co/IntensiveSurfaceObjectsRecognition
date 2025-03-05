@@ -4,6 +4,8 @@ public class AppSettings
 {
     public ConnectionStringsConfig ConnectionStrings { get; set; }
 
+    public int NeuralWatcherTimeout { get; set; }
+
     public FrameRate FrameRate { get; set; }
 }
 
