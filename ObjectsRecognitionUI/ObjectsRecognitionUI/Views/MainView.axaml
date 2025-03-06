@@ -99,12 +99,18 @@
 				<StackPanel Grid.Row="1"
 							Orientation="Vertical"
 							Margin="0, 30">
-					<ProgressBar Grid.Row="0"
+          
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <ProgressBar Grid.Row="0"
 								 IsIndeterminate="True"
 								 HorizontalAlignment="Stretch"
 								 Height="10"
 								 Margin="0 0 0 10"
 								 IsVisible="{Binding IsLoading}"/>
+            <TextBlock Text="{Binding ProgressPercentage, StringFormat='{}{0}%'}"
+                 VerticalAlignment="Center"
+                 IsVisible="{Binding IsLoading}"/>
+          </StackPanel>
 
 					<StackPanel Orientation="Horizontal">
 						<Button Content="Отправить изображение"

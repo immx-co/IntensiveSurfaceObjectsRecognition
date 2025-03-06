@@ -56,6 +56,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private bool _isLoading;
 
+    private int _progressPercentage;
+
     private bool _areButtonsEnabled;
 
     private bool _areConnectButtonEnabled = true;
@@ -138,6 +140,13 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         get => _isLoading;
         set => this.RaiseAndSetIfChanged(ref _isLoading, value);
     }
+
+    public int ProgressPercentage
+    {
+        get => _progressPercentage;
+        set => this.RaiseAndSetIfChanged(ref _progressPercentage, value);
+    }
+
     public bool AreButtonsEnabled
     {
         get => _areButtonsEnabled;
@@ -219,6 +228,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         finally
         {
             IsLoading = false;
+            ProgressPercentage = 0;
         }
     }
 
@@ -244,6 +254,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         finally
         {
             IsLoading = false;
+            ProgressPercentage = 0;
         }
     }
 
@@ -264,6 +275,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         finally
         {
             IsLoading = false;
+            ProgressPercentage = 0;
         }
         
         
@@ -287,13 +299,18 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
         var filesBitmap = new List<Bitmap>();
-        foreach (var file in files)
+        int totalFiles = files.Count;
+
+        for (int idx = 0; idx < totalFiles; idx++)
         {
+            var file = files[idx];
             var fileBitmap = new Bitmap(await file.OpenReadAsync());
             filesBitmap.Add(fileBitmap);
 
             var results = await GetImageDetectionResultsAsync(file, fileBitmap);
             itemsLists.Add(results);
+
+            ProgressPercentage = (int)((idx + 1) / (double)totalFiles * 100);
         }
 
         _imageFilesBitmap = filesBitmap;
@@ -403,10 +420,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
         var frames = await _videoService.GetFramesAsync(file);
-        for (int i = 0; i < frames.Count; i++)
+        int totalFiles = frames.Count;
+        for (int idx = 0; idx < totalFiles; idx++)
         {
-            var results = await GetFrameDetectionResultsAsync(frames[i], i + 1);
+            var results = await GetFrameDetectionResultsAsync(frames[idx], idx + 1);
             itemsLists.Add(results);
+            ProgressPercentage = (int)((idx + 1) / (double)totalFiles * 100);
         }
 
         _videoFile = file;
