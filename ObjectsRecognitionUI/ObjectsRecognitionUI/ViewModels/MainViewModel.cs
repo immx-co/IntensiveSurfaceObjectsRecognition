@@ -213,7 +213,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
-            IsLoading = true;
             var file = await _filesService.OpenImageFileAsync();
             if (file != null)
             {
@@ -235,7 +234,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
-            IsLoading = true;
             var files = await _filesService.OpenImageFolderAsync();
             if (files != null)
             {
@@ -262,7 +260,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
-            IsLoading = true;
             var file = await _filesService.OpenVideoFileAsync();
             if (file != null)
             {
@@ -295,6 +292,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Image Methods
     private async Task InitImagesAsync(List<IStorageFile> files)
     {
+        IsLoading = true;
         var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
         var filesBitmap = new List<Bitmap>();
         int totalFiles = files.Count;
@@ -415,6 +413,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Video Methods
     private async Task InitFramesAsync(IStorageFile file)
     {
+        IsLoading = true;
         var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
         var frames = await _videoService.GetFramesAsync(file);
         int totalFiles = frames.Count;
