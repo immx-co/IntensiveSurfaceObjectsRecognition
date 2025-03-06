@@ -46,7 +46,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private VideoService _videoService;
 
-    private readonly IConfiguration _configuration;
+    private readonly ConfigurationService _configurationService;
 
     private IServiceProvider _serviceProvider;
 
@@ -171,8 +171,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Constructors
     public MainViewModel(
         IScreen screen, 
-        FilesService filesService, 
-        IConfiguration configuration, 
+        FilesService filesService,
+        ConfigurationService configurationService, 
         IServiceProvider serviceProvider,
         VideoService videoService,
         EventJournalViewModel eventJournalViewModel)
@@ -180,7 +180,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         HostScreen = screen;
         _filesService = filesService;
         _videoService = videoService;
-        _configuration = configuration;
+        _configurationService = configurationService;
         _serviceProvider = serviceProvider;
         _eventJournalViewModel = eventJournalViewModel;
 
@@ -216,6 +216,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             var file = await _filesService.OpenImageFileAsync();
             if (file != null)
             {
+                ResetUI();
                 await InitImagesAsync(new List<IStorageFile> { file });
                 CanSwitchImages = false;
                 _isVideoSelected = false;
@@ -237,6 +238,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             var files = await _filesService.OpenImageFolderAsync();
             if (files != null)
             {
+                ResetUI();
                 await InitImagesAsync(files);
                 CanSwitchImages = true;
                 _isVideoSelected = false;
@@ -263,6 +265,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             var file = await _filesService.OpenVideoFileAsync();
             if (file != null)
             {
+                ResetUI();
                 await InitFramesAsync(file);
                 CanSwitchImages = true;
                 _isVideoSelected = true;
@@ -340,7 +343,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private async Task<List<RecognitionResult>> GetImageRecognitionResultsAsync(IStorageFile file)
     {
-        string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
+        string surfaceRecognitionServiceAddress = _configurationService.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
             try
@@ -408,6 +411,13 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         CurrentImage = _imageFilesBitmap[_currentNumberOfImage];
         RectItems = _rectItemsLists[_currentNumberOfImage];
     }
+
+    private void ResetUI()
+    {
+        RectItems = new AvaloniaList<RectItem>();
+        CurrentImage = null;
+        CurrentFileName = String.Empty;
+    }
     #endregion
 
     #region Video Methods
@@ -457,7 +467,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private async Task<List<RecognitionResult>> GetFrameRecognitionResultsAsync(Bitmap frame, int numberOfFrame)
     {
-        string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
+        string surfaceRecognitionServiceAddress = _configurationService.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
             try
@@ -584,7 +594,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private async Task CheckHealthAsync()
     {
         ConnectionStatus = Brushes.Red;
-        string surfaceRecognitionServiceAddress = _configuration.GetConnectionString("srsStringConnection");
+        string surfaceRecognitionServiceAddress = _configurationService.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
             try
@@ -601,7 +611,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                         AreButtonsEnabled = true;
                         AreConnectButtonEnabled = false;
                         ShowMessageBox("Success", $"Сервис доступен. Статус: {healthResponse.StatusCode}");
-                        Task.Run(() => StartNeuralServiceWatcher(surfaceRecognitionServiceAddress));
+                        Task.Run(() => StartNeuralServiceWatcher());
                     }
                     else
                     {
@@ -623,11 +633,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         }
     }
 
-    private async void StartNeuralServiceWatcher(string surfaceRecognitionServiceAddress)
+    private async void StartNeuralServiceWatcher()
     {
-        int neuralWatcherTimeout = _configuration.GetSection("NeuralWatcherTimeout").Get<int>();
         while (true)
         {
+            string surfaceRecognitionServiceAddress = _configurationService.GetConnectionString("srsStringConnection");
+            int neuralWatcherTimeout = _configurationService.GetNeuralWatcherTimeout();
             using (var client = new HttpClient())
             {
                 try

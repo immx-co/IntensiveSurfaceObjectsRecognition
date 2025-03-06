@@ -60,6 +60,7 @@ namespace ObjectsRecognitionUI
                 servicesCollection.AddSingleton<EventJournalViewModel>();
                 servicesCollection.AddSingleton<ConfigurationViewModel>();
 
+                servicesCollection.AddSingleton<ConfigurationService>();
                 servicesCollection.AddTransient<FilesService>();
                 servicesCollection.AddTransient<VideoService>();
 

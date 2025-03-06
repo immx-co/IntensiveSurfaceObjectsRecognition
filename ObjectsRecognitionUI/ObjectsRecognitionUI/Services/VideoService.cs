@@ -15,11 +15,11 @@ namespace ObjectsRecognitionUI.Services;
 
 public class VideoService
 {
-    private IConfiguration _configuration;
+    private readonly ConfigurationService _configurationService;
 
-    public VideoService(IConfiguration configuration)
+    public VideoService(ConfigurationService configurationService)
     {
-        _configuration = configuration;
+        _configurationService = configurationService;
     }
 
     public async Task<List<Bitmap>> GetFramesAsync(IStorageFile file)
@@ -28,7 +28,7 @@ public class VideoService
         var capture = new VideoCapture(file.Path.LocalPath);
         var image = new Mat();
 
-        int frameRate = Convert.ToInt32(_configuration.GetSection("FrameRate:Value").Value);
+        int frameRate = _configurationService.GetFrameRate();
         int i = 0;
         await Task.Run(() =>
         {

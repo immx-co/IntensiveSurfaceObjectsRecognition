@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using ClassLibrary;
 using MsBox.Avalonia;
+using ObjectsRecognitionUI.Services;
 
 namespace ObjectsRecognitionUI.ViewModels
 {
@@ -22,7 +23,7 @@ namespace ObjectsRecognitionUI.ViewModels
 
         private int _frameRate;
 
-        private readonly IConfiguration _configuration;
+        private readonly ConfigurationService _configurationService;
         #endregion
 
         #region View Model Settings
@@ -64,15 +65,15 @@ namespace ObjectsRecognitionUI.ViewModels
         }
 
         #region Constructors
-        public ConfigurationViewModel(IScreen screen, IConfiguration configuration)
+        public ConfigurationViewModel(IScreen screen, ConfigurationService configurationService)
         {
             HostScreen = screen;
-            _configuration = configuration;
+            _configurationService = configurationService;
 
-            ConnectionString = _configuration.GetConnectionString("dbStringConnection");
-            Url = _configuration.GetConnectionString("srsStringConnection");
-            NeuralWatcherTimeout = _configuration.GetSection("NeuralWatcherTimeout").Get<int>();
-            FrameRate = Convert.ToInt32(_configuration.GetSection("FrameRate:Value").Value);
+            ConnectionString = _configurationService.GetConnectionString("dbStringConnection");
+            Url = _configurationService.GetConnectionString("srsStringConnection");
+            NeuralWatcherTimeout = _configurationService.GetNeuralWatcherTimeout();
+            FrameRate = _configurationService.GetFrameRate();
 
             SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig);
         }
@@ -83,20 +84,13 @@ namespace ObjectsRecognitionUI.ViewModels
         {
             try
             {
-                var appSettingsPath = Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\", "appsettings.json");
-
-                var json = await File.ReadAllTextAsync(appSettingsPath);
-
-                var appSettings = JsonSerializer.Deserialize<AppSettings>(json);
-
-                appSettings.ConnectionStrings.dbStringConnection = ConnectionString;
-                appSettings.ConnectionStrings.srsStringConnection = Url;
-                appSettings.NeuralWatcherTimeout = NeuralWatcherTimeout;
-                appSettings.FrameRate.Value = FrameRate;
-
-                var updatedJson = JsonSerializer.Serialize(appSettings, new JsonSerializerOptions { WriteIndented = true });
-
-                await File.WriteAllTextAsync(appSettingsPath, updatedJson);
+                await _configurationService.UpdateAppSettingsAsync(appSettings =>
+                {
+                    appSettings.ConnectionStrings.dbStringConnection = ConnectionString;
+                    appSettings.ConnectionStrings.srsStringConnection = Url;
+                    appSettings.NeuralWatcherTimeout = NeuralWatcherTimeout;
+                    appSettings.FrameRate.Value = FrameRate;
+                });
 
                 ShowMessageBox("Success", $"Конфигурация успешно сохранена!");
             }
