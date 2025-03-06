@@ -226,6 +226,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         try
         {
+            IsLoading = true;
             var files = await _filesService.OpenImageFolderAsync();
             if (files != null)
             {
@@ -237,21 +238,35 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         }
         catch
         {
-            ShowMessageBox("Error", "В выбранной дирректории отсутвуют изображения или пристуствуют файлы с недопустимым расширением");
+            ShowMessageBox("Error", "В выбранной директории отсутcnвуют изображения или пристуствуют файлы с недопустимым расширением.");
             return;
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
     private async Task OpenVideoAsync()
     {
-        var file = await _filesService.OpenVideoFileAsync();
-        if (file != null)
+        try
         {
-            await InitFramesAsync(file);
-            CanSwitchImages = true;
-            _isVideoSelected = true;
-            FrameTitle = $"Кадр: {_currentNumberOfFrame + 1} из {_frames.Count}";
+            IsLoading = true;
+            var file = await _filesService.OpenVideoFileAsync();
+            if (file != null)
+            {
+                await InitFramesAsync(file);
+                CanSwitchImages = true;
+                _isVideoSelected = true;
+                FrameTitle = $"{_currentNumberOfFrame + 1} / {_frames.Count}";
+            }
         }
+        finally
+        {
+            IsLoading = false;
+        }
+        
+        
     }
 
     private void Next()
@@ -497,7 +512,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         CurrentImage = _frames[_currentNumberOfFrame];
         RectItems = _rectItemsLists[_currentNumberOfFrame];
 
-        FrameTitle = $"Кадр: {_currentNumberOfFrame + 1} из {_frames.Count}";
+        FrameTitle = $"{_currentNumberOfFrame + 1} / {_frames.Count}";
     }
     #endregion
 
