@@ -14,7 +14,9 @@ namespace ObjectsRecognitionUI.ViewModels
         private readonly IServiceProvider _serviceProvider;
         public RoutingState Router { get; }
 
-        public ReactiveCommand<Unit, Unit> GoMainWindow {  get; }
+        public ReactiveCommand<Unit, Unit> GoMainWindow { get; }
+
+        public ReactiveCommand<Unit, Unit> GoEventJournalWindow { get; }
 
         public ReactiveCommand<Unit, Unit> GoConfiguration { get; }
 
@@ -24,7 +26,8 @@ namespace ObjectsRecognitionUI.ViewModels
             _serviceProvider = serviceProvider;
 
             GoMainWindow = ReactiveCommand.Create(NavigateToMainWindow);
-            GoConfiguration = ReactiveCommand.Create(NavigateToConfiguration);
+            GoConfiguration = ReactiveCommand.Create(NavigateToConfigurationWindow);
+            GoEventJournalWindow = ReactiveCommand.Create(NavigateToEventJournalWindow);
 
             Router.Navigate.Execute(_serviceProvider.GetRequiredService<MainViewModel>());
         }
@@ -35,7 +38,13 @@ namespace ObjectsRecognitionUI.ViewModels
             Router.Navigate.Execute(_serviceProvider.GetRequiredService<MainViewModel>());
         }
 
-        private void NavigateToConfiguration()
+        private void NavigateToEventJournalWindow()
+        {
+            CheckDisposedCancelletionToken();
+            Router.Navigate.Execute(_serviceProvider.GetRequiredService<EventJournalViewModel>());
+        }
+
+        private void NavigateToConfigurationWindow()
         {
             CheckDisposedCancelletionToken();
             Router.Navigate.Execute(_serviceProvider.GetRequiredService<ConfigurationViewModel>());

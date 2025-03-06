@@ -5,9 +5,9 @@ using ReactiveUI;
 
 namespace ObjectsRecognitionUI.Views;
 
-public partial class MainView : ReactiveUserControl<MainViewModel>
+public partial class EventJournalView : ReactiveUserControl<EventJournalViewModel>
 {
-    public MainView()
+    public EventJournalView()
     {
         this.WhenActivated(disposables => { });
         AvaloniaXamlLoader.Load(this);

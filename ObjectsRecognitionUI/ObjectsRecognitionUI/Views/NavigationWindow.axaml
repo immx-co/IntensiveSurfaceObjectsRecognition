@@ -28,12 +28,15 @@
 					</Style>
 				</StackPanel.Styles>
 
-				<Button Content="Main Window"
-						Command="{Binding GoMainWindow}"
-						IsEnabled="True"/>
-				<Button Content="Configuration"
-						Command="{Binding GoConfiguration}"
-						IsEnabled="True"/>
+				<Button Content="Главное окно"
+								Command="{Binding GoMainWindow}"
+								IsEnabled="True"/>
+        <Button Content="Журнал событий"
+                Command="{Binding GoEventJournalWindow}"
+                IsEnabled="True"/>
+				<Button Content="Конфигурация"
+								Command="{Binding GoConfiguration}"
+								IsEnabled="True"/>
 			</StackPanel>
 
 			<rxui:RoutedViewHost Grid.Row="1" Router="{Binding Router}">

@@ -17,7 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive;
-using System.Reactive.Subjects;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -64,8 +64,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private bool _isVideoSelected = false;
 
-    private AvaloniaList<string> _detectionResults;
-
     private AvaloniaList<RectItem> _rectItems;
 
     private AvaloniaList<AvaloniaList<RectItem>> _rectItemsLists;
@@ -75,6 +73,10 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private AvaloniaList<LegendItem> _legendItems;
 
     private int _currentNumberOfFrame;
+    #endregion
+
+    #region Public Fields
+    public EventJournalViewModel _eventJournalViewModel;
     #endregion
 
     #region View Model Settings
@@ -159,12 +161,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         private set => this.RaiseAndSetIfChanged(ref _areConnectButtonEnabled, value);
     }
 
-    public AvaloniaList<string> DetectionResults
-    {
-        get => _detectionResults;
-        set => this.RaiseAndSetIfChanged(ref _detectionResults, value);
-    }
-
     public AvaloniaList<LegendItem> LegendItems
     {
         get => _legendItems;
@@ -178,17 +174,18 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         FilesService filesService, 
         IConfiguration configuration, 
         IServiceProvider serviceProvider,
-        VideoService videoService)
+        VideoService videoService,
+        EventJournalViewModel eventJournalViewModel)
     {
         HostScreen = screen;
         _filesService = filesService;
         _videoService = videoService;
         _configuration = configuration;
         _serviceProvider = serviceProvider;
+        _eventJournalViewModel = eventJournalViewModel;
 
         ConnectionStatus = Brushes.Gray;
         AreButtonsEnabled = false;
-        _detectionResults = new AvaloniaList<string>();
 
         _legendItems = new AvaloniaList<LegendItem>
         {
@@ -213,6 +210,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Command Methods
     private async Task OpenImageFileAsync()
     {
+        _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
             IsLoading = true;
@@ -234,6 +232,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private async Task OpenFolderAsync()
     {
+        _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
             IsLoading = true;
@@ -260,6 +259,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private async Task OpenVideoAsync()
     {
+        _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
             IsLoading = true;
@@ -277,8 +277,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             IsLoading = false;
             ProgressPercentage = 0;
         }
-        
-        
     }
 
     private void Next()
@@ -325,21 +323,20 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         List<RecognitionResult> detections = await GetImageRecognitionResultsAsync(file);
         var items = new AvaloniaList<RectItem>();
-        var detectionResults = new AvaloniaList<string>();
         foreach (RecognitionResult det in detections)
         {
             try
             {
                 items.Add(InitRect(det, fileBitmap));
                 await SaveRecognitionResultAsync(det);
-                detectionResults.Add($"Событие: Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
+                string eventLine = $"{file.Name}: class: {det.ClassName}, x: {det.X}, y: {det.Y}, width: {det.Width}, height: {det.Height}";
+                _eventJournalViewModel.EventResults.Add(eventLine);
             }
             catch (Exception ex)
             {
                 ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
             }
         }
-        DetectionResults = detectionResults;
         return items;
     }
 
@@ -441,21 +438,21 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         List<RecognitionResult> detections = await GetFrameRecognitionResultsAsync(frame, numberOfFrame);
         var items = new AvaloniaList<RectItem>();
-        var detectionResults = new AvaloniaList<string>();
+        var detectionResults = new StringBuilder();
         foreach (RecognitionResult det in detections)
         {
             try
             {
                 items.Add(InitRect(det, frame));
                 await SaveRecognitionResultAsync(det);
-                detectionResults.Add($"Событие: Class: {det.ClassName}, X: {det.X}, Y: {det.Y}, Width: {det.Width}, Height: {det.Height}");
+                string eventLine = $"frame_{numberOfFrame}: class: {det.ClassName}, x: {det.X}, y: {det.Y}, width: {det.Width}, height: {det.Height}";
+                _eventJournalViewModel.EventResults.Add(eventLine);
             }
             catch (Exception ex)
             {
                 ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
             }
         }
-        DetectionResults = detectionResults;
         return items;
     }
 

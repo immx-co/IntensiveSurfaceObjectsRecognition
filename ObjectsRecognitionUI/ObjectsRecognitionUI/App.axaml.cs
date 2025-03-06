@@ -57,6 +57,7 @@ namespace ObjectsRecognitionUI
                 servicesCollection.AddSingleton(configuration);
                 servicesCollection.AddSingleton<NavigationViewModel>();
                 servicesCollection.AddSingleton<MainViewModel>();
+                servicesCollection.AddSingleton<EventJournalViewModel>();
                 servicesCollection.AddSingleton<ConfigurationViewModel>();
 
                 servicesCollection.AddTransient<FilesService>();
