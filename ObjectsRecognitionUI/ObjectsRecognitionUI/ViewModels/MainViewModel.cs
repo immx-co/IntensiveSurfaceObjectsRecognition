@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using ObjectsRecognitionUI.Services;
 using ReactiveUI;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -213,6 +214,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Command Methods
     private async Task OpenImageFileAsync()
     {
+        Log.Information("Start sending image file");
+        Log.Debug("MainViewModel.OpenImageFileAsync: Start");
         _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
@@ -230,11 +233,15 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         {
             IsLoading = false;
             ProgressPercentage = 0;
+            Log.Information("End sending image file");
+            Log.Debug("MainViewModel.OpenImageFileAsync: Done");
         }
     }
 
     private async Task OpenFolderAsync()
     {
+        Log.Information("Start sending folder");
+        Log.Debug("MainViewModel.OpenFolderAsync: Start");
         _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
@@ -251,17 +258,22 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         catch
         {
             ShowMessageBox("Error", "В выбранной директории отсутcnвуют изображения или пристуствуют файлы с недопустимым расширением.");
+            Log.Warning("MainViewModel.OpenFolderAsync: Error; Message: В выбранной директории отсутcnвуют изображения или пристуствуют файлы с недопустимым расширением.");
             return;
         }
         finally
         {
             IsLoading = false;
             ProgressPercentage = 0;
+            Log.Information("End sending folder");
+            Log.Debug("MainViewModel.OpenFolderAsync: Done");
         }
     }
 
     private async Task OpenVideoAsync()
     {
+        Log.Information("Start sending video");
+        Log.Debug("MainViewModel.OpenVideoAsync: Start");
         _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
@@ -279,6 +291,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         {
             IsLoading = false;
             ProgressPercentage = 0;
+            Log.Information("End sending video");
+            Log.Debug("MainViewModel.OpenVideoAsync: Done");
         }
     }
 
@@ -298,6 +312,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Image Methods
     private async Task InitImagesAsync(List<IStorageFile> files)
     {
+        Log.Debug("MainViewModel.InitImagesAsync: Start");
         IsLoading = true;
         var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
         var filesBitmap = new List<Bitmap>();
@@ -323,6 +338,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
         _currentNumberOfImage = 0;
         SetImage();
+        Log.Debug("MainViewModel.InitImagesAsync: End");
     }
 
     private void InitEventJournalVMImageDictionary()
@@ -334,6 +350,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private async Task<AvaloniaList<RectItem>> GetImageDetectionResultsAsync(IStorageFile file, Bitmap fileBitmap)
     {
+        Log.Debug("MainViewModel.GetImageDetectionResultsAsync: Start");
         List<RecognitionResult> detections = await GetImageRecognitionResultsAsync(file);
         var items = new AvaloniaList<RectItem>();
         foreach (RecognitionResult det in detections)
@@ -348,13 +365,16 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             catch (Exception ex)
             {
                 ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
+                Log.Warning("MainViewModel.GetImageDetectionResultsAsync: Error; Message: {@Message}", ex.Message);
             }
         }
+        Log.Debug("MainViewModel.GetImageDetectionResultsAsync: Done");
         return items;
     }
 
     private async Task<List<RecognitionResult>> GetImageRecognitionResultsAsync(IStorageFile file)
     {
+        Log.Debug("MainViewModel.GetImageRecognitionResultsAsync: Start");
         string surfaceRecognitionServiceAddress = _configurationService.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
@@ -389,15 +409,17 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                     else
                     {
                         ShowMessageBox("Error", $"Ошибка при отправке изображения: {response.StatusCode}");
+                        Log.Warning("MainViewModel.GetImageRecognitionResultsAsync: Error; Message: {@Message}", $"Ошибка при отправке изображения: {response.StatusCode}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 ShowMessageBox("Error", $"Ошибка при отправке изображения: {ex.Message}");
+                Log.Warning("MainViewModel.GetImageRecognitionResultsAsync: Error; Message: {@Message}", ex.Message);
             }
         }
-
+        Log.Debug("MainViewModel.GetImageRecognitionResultsAsync: Done");
         return new List<RecognitionResult>();
     }
 
@@ -436,6 +458,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Video Methods
     private async Task InitFramesAsync(IStorageFile file)
     {
+        Log.Debug("MainViewModel.InitFramesAsync: Start");
         IsLoading = true;
         var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
         var frames = await _videoService.GetFramesAsync(file);
@@ -454,10 +477,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         CurrentFileName = file.Name;
         _currentNumberOfFrame = 0;
         SetFrame();
+        Log.Debug("MainViewModel.InitFramesAsync: End");
     }
 
     private async Task<AvaloniaList<RectItem>> GetFrameDetectionResultsAsync(Bitmap frame, int numberOfFrame)
     {
+        Log.Debug("MainViewModel.GetFrameDetectionResultsAsync: Start");
         List<RecognitionResult> detections = await GetFrameRecognitionResultsAsync(frame, numberOfFrame);
         var items = new AvaloniaList<RectItem>();
         var detectionResults = new StringBuilder();
@@ -471,13 +496,16 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             catch (Exception ex)
             {
                 ShowMessageBox("Error", $"Ошибка при обработке детекции: {ex.Message}");
+                Log.Warning("MainViewModel.GetFrameDetectionResultsAsync: Error; Message: {@Message}", ex.Message);
             }
         }
+        Log.Debug("MainViewModel.GetFrameDetectionResultsAsync: Done");
         return items;
     }
 
     private async Task<List<RecognitionResult>> GetFrameRecognitionResultsAsync(Bitmap frame, int numberOfFrame)
     {
+        Log.Debug("MainViewModel.GetFrameRecognitionResultsAsync: Start");
         string surfaceRecognitionServiceAddress = _configurationService.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
@@ -515,15 +543,17 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                     else
                     {
                         ShowMessageBox("Error", $"Ошибка при отправке видео: {response.StatusCode}");
+                        Log.Debug("MainViewModel.GetFrameRecognitionResultsAsync: Error; Message: {@Message}", $"Ошибка при отправке видео: {response.StatusCode}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 ShowMessageBox("Error", $"Ошибка при отправке видео: {ex.Message}");
+                Log.Debug("MainViewModel.GetFrameRecognitionResultsAsync: Error; Message: {@Message}", ex.Message);
             }
         }
-
+        Log.Debug("MainViewModel.GetFrameRecognitionResultsAsync: Done");
         return new List<RecognitionResult>();
     }
 
@@ -559,6 +589,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         string surfaceRecognitionServiceAddress = _configurationService.GetConnectionString("srsStringConnection");
         using (var client = new HttpClient())
         {
+            Log.Debug("MainViewModel.CheckHealthAsync: Start");
             try
             {
                 var response = await client.GetAsync($"{surfaceRecognitionServiceAddress}/health");
@@ -574,29 +605,34 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                         AreConnectButtonEnabled = false;
                         ShowMessageBox("Success", $"Сервис доступен. Статус: {healthResponse.StatusCode}");
                         Task.Run(() => StartNeuralServiceWatcher());
+                        Log.Debug("MainViewModel.CheckHealthAsync: Health checked");
                     }
                     else
                     {
                         ConnectionStatus = Brushes.Red;
                         ShowMessageBox("Failed", $"Сервис недоступен. Статус: {healthResponse?.StatusCode}");
+                        Log.Warning("MainViewModel.CheckHealthAsync: Error; Message: {@Message}", $"Сервис недоступен. Статус: {healthResponse?.StatusCode}");
                     }
                 }
                 else
                 {
                     ConnectionStatus = Brushes.Red;
                     ShowMessageBox("Failed", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
+                    Log.Warning("MainViewModel.CheckHealthAsync: Error; Message: {@Message}", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
                 }
             }
             catch
             {
                 ConnectionStatus = Brushes.Red;
                 ShowMessageBox("Failed", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
+                Log.Warning("MainViewModel.CheckHealthAsync: Error; Message: {@Message}", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
             }
         }
     }
 
     private async void StartNeuralServiceWatcher()
     {
+        Log.Debug("MainViewModel.StartNeuralServiceWatcher: Start health check");
         while (true)
         {
             string surfaceRecognitionServiceAddress = _configurationService.GetConnectionString("srsStringConnection");
@@ -620,6 +656,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                             AreButtonsEnabled = false;
                             ConnectionStatus = Brushes.Red;
                             ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
+                            Log.Debug("MainViewModel.StartNeuralServiceWatcher: Error; Message: {@Message}", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
                         });
                         break;
                     }
@@ -633,11 +670,11 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                         AreButtonsEnabled = false;
                         ConnectionStatus = Brushes.Red;
                         ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
+                        Log.Debug("MainViewModel.StartNeuralServiceWatcher: Error; Message: {@Message}", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
                     });
                     break;
                 }
             }
-                
         }
     }
     #endregion
@@ -645,9 +682,11 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #region Data Base Methods
     private async Task SaveRecognitionResultAsync(RecognitionResult recognitionResult)
     {
+        Log.Debug("MainViewModel.SaveRecognitionResultAsync: Start");
         using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
         db.RecognitionResults.AddRange(recognitionResult);
         await db.SaveChangesAsync();
+        Log.Debug("MainViewModel.SaveRecognitionResultAsync: Done");
     }
     #endregion
 

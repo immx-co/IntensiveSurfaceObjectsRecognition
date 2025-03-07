@@ -12,6 +12,8 @@ using Avalonia.Controls;
 using Microsoft.Extensions.Configuration;
 using System;
 using ClassLibrary.Database;
+using ClassLibrary;
+using Serilog;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 
@@ -49,6 +51,8 @@ namespace ObjectsRecognitionUI
                     .SetBasePath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\"))
                     .AddJsonFile("appsettings.json")
                     .Build();
+
+                Log.Logger = LoggerSetup.CreateLogger();
 
                 IServiceCollection servicesCollection = new ServiceCollection();
 

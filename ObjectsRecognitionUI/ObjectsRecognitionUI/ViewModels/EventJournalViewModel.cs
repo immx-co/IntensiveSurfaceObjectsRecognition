@@ -1,7 +1,9 @@
 ﻿using Avalonia.Collections;
+using Avalonia.Metadata;
 using ClassLibrary.Database.Models;
 using ObjectsRecognitionUI.Services;
 using ReactiveUI;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -107,14 +109,19 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
     #region Private Methods
     private void Render()
     {
+        Log.Information("Start render event journal image");
+        Log.Debug("EventJournalViewModel.Render: Start");
         var result = ParseSelectedEventResult();
         InitRectItem(result);
         CurrentImage = ImagesDictionary[result.Name];
         Title = result.Name;
+        Log.Information("End render event journal image");
+        Log.Debug("EventJournalViewModel.Render: Done; Title: {@Title}; Event Result: {@EventResult}", Title, result);
     }
 
     private void InitRectItem(EventResult eventResult)
     {
+        Log.Debug("EventJournalViewModel.InitRectItem: Start");
         RecognitionResult recognitionResult = new RecognitionResult()
         {
             ClassName = eventResult.Class,
@@ -125,6 +132,7 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
         };
 
         RectItems = [_rectItemService.InitRect(recognitionResult, ImagesDictionary[eventResult.Name])];
+        Log.Debug("EventJournalViewModel.InitRectItem: Done; Recognition Result: {@RecognitionResult}", recognitionResult);
     }
 
     private EventResult ParseSelectedEventResult()

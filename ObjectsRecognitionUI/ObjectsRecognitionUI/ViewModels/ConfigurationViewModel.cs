@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using ClassLibrary;
 using MsBox.Avalonia;
+using Serilog;
 using ObjectsRecognitionUI.Services;
 
 namespace ObjectsRecognitionUI.ViewModels
@@ -84,6 +85,8 @@ namespace ObjectsRecognitionUI.ViewModels
         {
             try
             {
+                Log.Information("Save Configuration: Start");
+                Log.Debug("ConfigurationViewModel.SaveConfig: Start");
                 await _configurationService.UpdateAppSettingsAsync(appSettings =>
                 {
                     appSettings.ConnectionStrings.dbStringConnection = ConnectionString;
@@ -93,10 +96,13 @@ namespace ObjectsRecognitionUI.ViewModels
                 });
 
                 ShowMessageBox("Success", $"Конфигурация успешно сохранена!");
+                Log.Information("Save Configuration: Done");
+                Log.Debug("ConfigurationViewModel.SaveConfig: Done");
             }
             catch (Exception ex)
             {
                 ShowMessageBox("Failed", "Возникла ошибка при сохранении конфигурации.");
+                Log.Warning("ConfigurationViewModel.SaveConfig: Error; Message: Возникла ошибка при сохранении конфигурации.");
             }
         }
         #endregion
