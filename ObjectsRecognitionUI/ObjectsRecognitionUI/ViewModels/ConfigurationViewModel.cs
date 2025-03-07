@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using ClassLibrary;
 using MsBox.Avalonia;
+using Serilog;
 
 namespace ObjectsRecognitionUI.ViewModels
 {
@@ -83,6 +84,8 @@ namespace ObjectsRecognitionUI.ViewModels
         {
             try
             {
+                Log.Information("Save Configuration: Start");
+                Log.Debug("ConfigurationViewModel.SaveConfig: Start");
                 var appSettingsPath = Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\", "appsettings.json");
 
                 var json = await File.ReadAllTextAsync(appSettingsPath);
@@ -99,10 +102,13 @@ namespace ObjectsRecognitionUI.ViewModels
                 await File.WriteAllTextAsync(appSettingsPath, updatedJson);
 
                 ShowMessageBox("Success", $"Конфигурация успешно сохранена!");
+                Log.Information("Save Configuration: Done");
+                Log.Debug("ConfigurationViewModel.SaveConfig: Done; Result: {@UpdatedJson}", updatedJson);
             }
             catch (Exception ex)
             {
                 ShowMessageBox("Failed", "Возникла ошибка при сохранении конфигурации.");
+                Log.Warning("ConfigurationViewModel.SaveConfig: Error; Message: Возникла ошибка при сохранении конфигурации.");
             }
         }
         #endregion
