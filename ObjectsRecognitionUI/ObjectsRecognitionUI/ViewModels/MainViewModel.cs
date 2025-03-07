@@ -615,6 +615,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                     {
                         await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                         {
+                            ResetUI();
                             AreConnectButtonEnabled = true;
                             AreButtonsEnabled = false;
                             ConnectionStatus = Brushes.Red;
@@ -627,6 +628,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 {
                     await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                     {
+                        ResetUI();
                         AreConnectButtonEnabled = true;
                         AreButtonsEnabled = false;
                         ConnectionStatus = Brushes.Red;
