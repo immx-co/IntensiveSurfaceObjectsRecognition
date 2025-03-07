@@ -183,9 +183,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         _filesService = filesService;
         _videoService = videoService;
         _rectItemService = rectItemService;
-        _configuration = configuration;
         _serviceProvider = serviceProvider;
         _eventJournalViewModel = eventJournalViewModel;
+        _configurationService = configurationService;
 
         ConnectionStatus = Brushes.Gray;
         AreButtonsEnabled = false;
@@ -429,6 +429,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         RectItems = new AvaloniaList<RectItem>();
         CurrentImage = null;
         CurrentFileName = String.Empty;
+        FrameTitle = String.Empty;
     }
     #endregion
 

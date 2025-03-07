@@ -1,23 +1,9 @@
 ﻿using ClassLibrary;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using ReactiveUI;
-using System;
-using System.Reactive;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using System.IO;
-using ClassLibrary;
-using MsBox.Avalonia;
-using System.Xml.Linq;
 
 namespace ObjectsRecognitionUI.Services;
 
