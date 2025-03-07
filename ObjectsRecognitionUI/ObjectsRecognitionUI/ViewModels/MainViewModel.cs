@@ -46,6 +46,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     private VideoService _videoService;
 
+    private RectItemService _rectItemService;
     private readonly ConfigurationService _configurationService;
 
     private IServiceProvider _serviceProvider;
@@ -175,12 +176,14 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         ConfigurationService configurationService, 
         IServiceProvider serviceProvider,
         VideoService videoService,
+        RectItemService rectItemService,
         EventJournalViewModel eventJournalViewModel)
     {
         HostScreen = screen;
         _filesService = filesService;
         _videoService = videoService;
-        _configurationService = configurationService;
+        _rectItemService = rectItemService;
+        _configuration = configuration;
         _serviceProvider = serviceProvider;
         _eventJournalViewModel = eventJournalViewModel;
 
@@ -316,8 +319,17 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         _rectItemsLists = itemsLists;
         _imageFiles = files;
 
+        InitEventJournalVMImageDictionary();
+
         _currentNumberOfImage = 0;
         SetImage();
+    }
+
+    private void InitEventJournalVMImageDictionary()
+    {
+        var dictioanary = new Dictionary<string, Bitmap>();
+        for(int i =0; i<_imageFiles.Count;i++) dictioanary.Add(_imageFiles[i].Name, _imageFilesBitmap[i]);
+        _eventJournalViewModel.ImagesDictionary = dictioanary;
     }
 
     private async Task<AvaloniaList<RectItem>> GetImageDetectionResultsAsync(IStorageFile file, Bitmap fileBitmap)
@@ -328,9 +340,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         {
             try
             {
-                items.Add(InitRect(det, fileBitmap));
+                items.Add(_rectItemService.InitRect(det, fileBitmap));
                 await SaveRecognitionResultAsync(det);
-                string eventLine = $"{file.Name}: class: {det.ClassName}, x: {det.X}, y: {det.Y}, width: {det.Width}, height: {det.Height}";
+                string eventLine = $"Name: {file.Name}; class: {det.ClassName}; x: {det.X}; y: {det.Y}; width: {det.Width}; height: {det.Height}";
                 _eventJournalViewModel.EventResults.Add(eventLine);
             }
             catch (Exception ex)
@@ -452,10 +464,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         {
             try
             {
-                items.Add(InitRect(det, frame));
+                items.Add(_rectItemService.InitRect(det, frame));
                 await SaveRecognitionResultAsync(det);
-                string eventLine = $"frame_{numberOfFrame}: class: {det.ClassName}, x: {det.X}, y: {det.Y}, width: {det.Width}, height: {det.Height}";
-                _eventJournalViewModel.EventResults.Add(eventLine);
             }
             catch (Exception ex)
             {
@@ -538,55 +548,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         RectItems = _rectItemsLists[_currentNumberOfFrame];
 
         FrameTitle = $"{_currentNumberOfFrame + 1} / {_frames.Count}";
-    }
-    #endregion
-
-    #region Rect Drawing Methods
-    private RectItem InitRect(RecognitionResult recognitionResult, Bitmap file)
-    {
-        double widthImage = file.Size.Width;
-        double heightImage = file.Size.Height;
-
-        double k1 = widthImage / 800;
-        double k2 = heightImage / 400;
-
-        if (k1 > k2)
-        {
-            widthImage /= k1;
-            heightImage /= k1;
-        }
-        else
-        {
-            widthImage /= k2;
-            heightImage /= k2;
-        }
-
-        double xCenter = widthImage * (recognitionResult.X / file.Size.Width) + (800 - widthImage) / 2;
-        double yCenter = heightImage * (recognitionResult.Y / file.Size.Height) + (400 - heightImage) / 2;
-
-        int width = (int)(widthImage * (recognitionResult.Width / file.Size.Width));
-        int height = (int)(heightImage * (recognitionResult.Height / file.Size.Height));
-
-        int x = (int)(xCenter - width / 2);
-        int y = (int)(yCenter - height / 2);
-
-        string color = recognitionResult.ClassName switch
-        {
-            "human" => "Green",
-            "wind/sup-board" => "Red",
-            "bouy" => "Blue",
-            "sailboat" => "Yellow",
-            "kayak" => "Purple"
-        };
-
-        return new RectItem
-        {
-            X = x,
-            Y = y,
-            Width = width,
-            Height = height,
-            Color = color
-        };
     }
     #endregion
 
@@ -732,12 +693,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         [JsonPropertyName("object_bbox")]
         public List<InferenceResult> ObjectBbox { get; set; }
-    }
-
-    public class LegendItem
-    {
-        public string ClassName { get; set; }
-        public string Color { get; set; }
     }
     #endregion
 }
