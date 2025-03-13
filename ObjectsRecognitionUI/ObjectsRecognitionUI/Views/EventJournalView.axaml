@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1550" d:DesignHeight="850"
              x:Class="ObjectsRecognitionUI.Views.EventJournalView"
              x:DataType="vm:EventJournalViewModel">
 	<Grid>
@@ -11,26 +11,32 @@
 			<ColumnDefinition Width="600"/>
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
-		<Border Grid.Column="0"
-				Height="700"
-				Width="600">
-			<ScrollViewer>
-				<ListBox ItemsSource="{Binding EventResults}"
-						 SelectionMode="Single"
-						 SelectedItem="{Binding SelectedEventResult}">
-					<ListBox.ItemTemplate>
-						<DataTemplate>
-							<TextBlock Text="{Binding}"
-									   Margin="5" />
-						</DataTemplate>
-					</ListBox.ItemTemplate>
-				</ListBox>
-			</ScrollViewer>
-		</Border>
+		<StackPanel Grid.Column="0"
+					Margin="10 0 0 0">
+			<StackPanel Orientation="Horizontal"
+						Margin="0 0 0 10">
+				<TextBlock Text="Имя изображения:"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+				<ComboBox MaxDropDownHeight="150"
+						  ItemsSource="{Binding ImageNames}"
+						  SelectedItem="{Binding SelectedImageName}"
+						  Width="200"/>
+			</StackPanel>
+			<Border Height="700"
+					Width="600">
+				<ScrollViewer>
+					<ListBox ItemsSource="{Binding CurrentEventResults}"
+							 SelectionMode="Single"
+							 SelectedItem="{Binding SelectedEventResult}">
+					</ListBox>
+				</ScrollViewer>
+			</Border>
+		</StackPanel>
 		<StackPanel Grid.Column="1"
 					VerticalAlignment="Center"
 					HorizontalAlignment="Center">
-			<TextBlock Text="{Binding Title}"
+			<TextBlock Text="{Binding SelectedImageName}"
 					   Margin="0 0 0 10"/>
 			<Grid Width="800"
 				  Height="400">

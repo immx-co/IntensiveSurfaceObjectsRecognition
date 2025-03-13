@@ -7,6 +7,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Reactive;
 using System.Threading;
 
@@ -15,7 +16,13 @@ namespace ObjectsRecognitionUI.ViewModels;
 public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
 {
     #region Private Fields
-    private AvaloniaList<string> _eventResults;
+    private Dictionary<string, AvaloniaList<string>> _eventResults;
+
+    private AvaloniaList<string> _currentEventResults;
+
+    private AvaloniaList<string> _imageNames;
+
+    private string? _selectedImageName;
 
     private AvaloniaList<RectItem> _rectItems;
 
@@ -24,8 +31,6 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
     private Dictionary<string, Avalonia.Media.Imaging.Bitmap> _imagesDictionary;
 
     private RectItemService _rectItemService;
-
-    private string _title;
 
     private string _selectedEventResult;
 
@@ -40,10 +45,22 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Properties
-    public AvaloniaList<string> EventResults
+    public Dictionary<string, AvaloniaList<string>> EventResults
     {
         get => _eventResults;
         set => this.RaiseAndSetIfChanged(ref _eventResults, value);
+    }
+
+    public AvaloniaList<string> CurrentEventResults
+    {
+        get => _currentEventResults;
+        set => this.RaiseAndSetIfChanged(ref _currentEventResults, value);
+    }
+
+    public AvaloniaList<string> ImageNames
+    {
+        get => _imageNames;
+        set => this.RaiseAndSetIfChanged(ref _imageNames, value);
     }
 
     public string SelectedEventResult 
@@ -75,10 +92,14 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
         set => this.RaiseAndSetIfChanged(ref _imagesDictionary, value);
     }
 
-    public string Title
+    public string SelectedImageName
     {
-        get => _title;
-        set => this.RaiseAndSetIfChanged(ref _title, value);
+        get => _selectedImageName;
+        set
+        {
+            if (value != string.Empty && value != null) CurrentEventResults = EventResults[value];
+            this.RaiseAndSetIfChanged(ref _selectedImageName, value);
+        }
     }
 
     public AvaloniaList<LegendItem> LegendItems
@@ -93,7 +114,7 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
     {
         HostScreen = screen;
         _rectItemService = rectItemService;
-        _eventResults = new AvaloniaList<string>();
+        _eventResults = new Dictionary<string, AvaloniaList<string>>();
 
         LegendItems = new AvaloniaList<LegendItem>
         {
@@ -113,10 +134,9 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
         Log.Debug("EventJournalViewModel.Render: Start");
         var result = ParseSelectedEventResult();
         InitRectItem(result);
-        CurrentImage = ImagesDictionary[result.Name];
-        Title = result.Name;
+        CurrentImage = ImagesDictionary[SelectedImageName];
         Log.Information("End render event journal image");
-        Log.Debug("EventJournalViewModel.Render: Done; Title: {@Title}; Event Result: {@EventResult}", Title, result);
+        Log.Debug("EventJournalViewModel.Render: Done; Image Name: {@ImageName}; Event Result: {@EventResult}", SelectedImageName, result);
     }
 
     private void InitRectItem(EventResult eventResult)
@@ -131,7 +151,7 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
             Height = eventResult.Height
         };
 
-        RectItems = [_rectItemService.InitRect(recognitionResult, ImagesDictionary[eventResult.Name])];
+        RectItems = [_rectItemService.InitRect(recognitionResult, ImagesDictionary[SelectedImageName])];
         Log.Debug("EventJournalViewModel.InitRectItem: Done; Recognition Result: {@RecognitionResult}", recognitionResult);
     }
 
@@ -140,19 +160,18 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
         var values = SelectedEventResult.Split("; ");
         return new EventResult
         {
-            Name = values[0].Split(": ")[1],
-            Class = values[1].Split(": ")[1],
-            X = Convert.ToInt32(values[2].Split(": ")[1]),
-            Y = Convert.ToInt32(values[3].Split(": ")[1]),
-            Width = Convert.ToInt32(values[4].Split(": ")[1]),
-            Height = Convert.ToInt32(values[5].Split(": ")[1])
+            Class = values[0].Split(": ")[1],
+            X = Convert.ToInt32(values[1].Split(": ")[1]),
+            Y = Convert.ToInt32(values[2].Split(": ")[1]),
+            Width = Convert.ToInt32(values[3].Split(": ")[1]),
+            Height = Convert.ToInt32(values[4].Split(": ")[1])
         };
     }
 
     private void Clear()
     {
         CurrentImage = null;
-        Title = String.Empty;
+        SelectedImageName = String.Empty;
         RectItems = null;
     }
 
@@ -160,8 +179,6 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
 
     private class EventResult
     {
-        public string Name { get; set; }
-
         public string Class { get; set; }
 
         public int X { get; set; }
