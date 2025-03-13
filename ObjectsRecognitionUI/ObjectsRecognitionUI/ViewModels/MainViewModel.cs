@@ -1,4 +1,5 @@
 ﻿using Avalonia.Collections;
+using Avalonia.DesignerSupport;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
@@ -79,6 +80,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
 
     #region Public Fields
     public EventJournalViewModel _eventJournalViewModel;
+
+    public VideoEventJournalViewModel _videoEventJournalViewModel;
     #endregion
 
     #region View Model Settings
@@ -178,7 +181,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         IServiceProvider serviceProvider,
         VideoService videoService,
         RectItemService rectItemService,
-        EventJournalViewModel eventJournalViewModel)
+        EventJournalViewModel eventJournalViewModel,
+        VideoEventJournalViewModel videoEventJournalViewModel)
     {
         HostScreen = screen;
         _filesService = filesService;
@@ -186,6 +190,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         _rectItemService = rectItemService;
         _serviceProvider = serviceProvider;
         _eventJournalViewModel = eventJournalViewModel;
+        _videoEventJournalViewModel = videoEventJournalViewModel;
         _configurationService = configurationService;
 
         ConnectionStatus = Brushes.Gray;
@@ -205,9 +210,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         ConnectCommand = ReactiveCommand.CreateFromTask(CheckHealthAsync);
         SendImageCommand = ReactiveCommand.CreateFromTask(OpenImageFileAsync);
         SendFolderCommand = ReactiveCommand.CreateFromTask(OpenFolderAsync);
+        SendVideoCommand = ReactiveCommand.CreateFromTask(OpenVideoAsync);
         ImageBackCommand = ReactiveCommand.Create(Previous);
         ImageForwardCommand = ReactiveCommand.Create(Next);
-        SendVideoCommand = ReactiveCommand.CreateFromTask(OpenVideoAsync);
     }
     #endregion
 
@@ -216,6 +221,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         Log.Information("Start sending image file");
         Log.Debug("MainViewModel.OpenImageFileAsync: Start");
+        _eventJournalViewModel.IsVideoProcessing = false;
         _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
@@ -242,6 +248,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         Log.Information("Start sending folder");
         Log.Debug("MainViewModel.OpenFolderAsync: Start");
+        _eventJournalViewModel.IsVideoProcessing = false;
         _eventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
@@ -274,7 +281,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         Log.Information("Start sending video");
         Log.Debug("MainViewModel.OpenVideoAsync: Start");
-        _eventJournalViewModel.EventResults = new AvaloniaList<string>();
+        _eventJournalViewModel.IsVideoProcessing = true;
+        _videoEventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
             var file = await _filesService.OpenVideoFileAsync();
@@ -291,6 +299,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         {
             IsLoading = false;
             ProgressPercentage = 0;
+            await _videoEventJournalViewModel.FillComboBox();
             Log.Information("End sending video");
             Log.Debug("MainViewModel.OpenVideoAsync: Done");
         }
@@ -456,19 +465,33 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Video Methods
+    private async Task InitializeVideoEventJournalWindow()
+    {
+        await _videoEventJournalViewModel.FillComboBox();
+    }
+
     private async Task InitFramesAsync(IStorageFile file)
     {
         Log.Debug("MainViewModel.InitFramesAsync: Start");
         IsLoading = true;
         var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
         var frames = await _videoService.GetFramesAsync(file);
-        int totalFiles = frames.Count;
+
+        List<FrameNDetections> frameNDetections = new List<FrameNDetections>();
+        int totalFiles = frames.Count();
         for (int idx = 0; idx < totalFiles; idx++)
         {
             var results = await GetFrameDetectionResultsAsync(frames[idx], idx + 1);
             itemsLists.Add(results);
             ProgressPercentage = (int)((idx + 1) / (double)totalFiles * 100);
+            frameNDetections.Add(new FrameNDetections
+            {
+                Frame = frames[idx],
+                Detections = results
+            });
         }
+
+        await SaveDataIntoDatabase(file, frameNDetections);
 
         _videoFile = file;
         _rectItemsLists = itemsLists;
@@ -480,12 +503,64 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         Log.Debug("MainViewModel.InitFramesAsync: End");
     }
 
+    private async Task<Video> SaveDataIntoDatabase(IStorageFile videoFile, List<FrameNDetections> framesNDetections)
+    {
+        Log.Debug("MainViewModel.SaveDataIntoDatabaseAsync: Start");
+        using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
+
+        List<Frame> framesModel = new List<Frame>();
+        await Task.Run(() =>
+        {
+            foreach (FrameNDetections currentFrameNDetections in framesNDetections)
+            {
+                using var memoryStream = new MemoryStream();
+                currentFrameNDetections.Frame.Save(memoryStream);
+                byte[] frameBytes = memoryStream.ToArray();
+
+                var currentDetections = currentFrameNDetections.Detections.Select((detection) => new Detection
+                {
+                    ClassName = detection.Color switch
+                    {
+                        "Green" => "human",
+                        "Red" => "wind/sup-board",
+                        "Blue" => "bouy",
+                        "Yellow" => "sailboat",
+                        "Purple" => "kayak"
+                    },
+                    X = detection.X,
+                    Y = detection.Y,
+                    Width = detection.Width,
+                    Height = detection.Height
+                }).ToList();
+
+                Frame currentFrame = new Frame
+                {
+                    FrameData = frameBytes,
+                    CreatedAt = DateTime.UtcNow,
+                    Detections = currentDetections
+                };
+                framesModel.Add(currentFrame);
+            }
+        });
+        
+        Video videoModel = new Video
+        {
+            VideoName = videoFile.Name,
+            FilePath = videoFile.Path.ToString(),
+            CreatedAt = DateTime.UtcNow,
+            Frames = framesModel,
+        };
+        var addedVideoEntity = db.Videos.Add(videoModel);
+        await db.SaveChangesAsync();
+        return addedVideoEntity.Entity;
+    }
+
     private async Task<AvaloniaList<RectItem>> GetFrameDetectionResultsAsync(Bitmap frame, int numberOfFrame)
     {
         Log.Debug("MainViewModel.GetFrameDetectionResultsAsync: Start");
         List<RecognitionResult> detections = await GetFrameRecognitionResultsAsync(frame, numberOfFrame);
         var items = new AvaloniaList<RectItem>();
-        var detectionResults = new StringBuilder();
+        
         foreach (RecognitionResult det in detections)
         {
             try
@@ -605,11 +680,13 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                         AreConnectButtonEnabled = false;
                         ShowMessageBox("Success", $"Сервис доступен. Статус: {healthResponse.StatusCode}");
                         Task.Run(() => StartNeuralServiceWatcher());
+                        Task.Run(InitializeVideoEventJournalWindow);
                         Log.Debug("MainViewModel.CheckHealthAsync: Health checked");
                     }
                     else
                     {
                         ConnectionStatus = Brushes.Red;
+                        _videoEventJournalViewModel.ClearUI();
                         ShowMessageBox("Failed", $"Сервис недоступен. Статус: {healthResponse?.StatusCode}");
                         Log.Warning("MainViewModel.CheckHealthAsync: Error; Message: {@Message}", $"Сервис недоступен. Статус: {healthResponse?.StatusCode}");
                     }
@@ -617,6 +694,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                 else
                 {
                     ConnectionStatus = Brushes.Red;
+                    _videoEventJournalViewModel.ClearUI();
                     ShowMessageBox("Failed", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
                     Log.Warning("MainViewModel.CheckHealthAsync: Error; Message: {@Message}", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
                 }
@@ -624,6 +702,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             catch
             {
                 ConnectionStatus = Brushes.Red;
+                _videoEventJournalViewModel.ClearUI();
                 ShowMessageBox("Failed", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
                 Log.Warning("MainViewModel.CheckHealthAsync: Error; Message: {@Message}", $"Не удалось подключиться к сервису с адресом {surfaceRecognitionServiceAddress}");
             }
@@ -655,6 +734,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                             AreConnectButtonEnabled = true;
                             AreButtonsEnabled = false;
                             ConnectionStatus = Brushes.Red;
+                            _videoEventJournalViewModel.ClearUI();
                             ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
                             Log.Debug("MainViewModel.StartNeuralServiceWatcher: Error; Message: {@Message}", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
                         });
@@ -669,6 +749,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
                         AreConnectButtonEnabled = true;
                         AreButtonsEnabled = false;
                         ConnectionStatus = Brushes.Red;
+                        _videoEventJournalViewModel.ClearUI();
                         ShowMessageBox("Failed", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
                         Log.Debug("MainViewModel.StartNeuralServiceWatcher: Error; Message: {@Message}", "Пропало соединение с нейросетевым сервисом, попробуйте подключиться еще раз.");
                     });
@@ -735,6 +816,13 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         [JsonPropertyName("object_bbox")]
         public List<InferenceResult> ObjectBbox { get; set; }
+    }
+
+    public class FrameNDetections
+    {
+        public Bitmap Frame { get; set; }
+
+        public AvaloniaList<RectItem> Detections { get; set; }
     }
     #endregion
 }

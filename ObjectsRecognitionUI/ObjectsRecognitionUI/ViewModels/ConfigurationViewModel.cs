@@ -57,13 +57,13 @@ namespace ObjectsRecognitionUI.ViewModels
             get => _frameRate;
             set => this.RaiseAndSetIfChanged(ref _frameRate, value);
         }
-        #endregion
 
         public int NeuralWatcherTimeout
         {
             get => _neuralWatcherTimeout;
             set => this.RaiseAndSetIfChanged(ref _neuralWatcherTimeout, value);
         }
+        #endregion
 
         #region Constructors
         public ConfigurationViewModel(IScreen screen, ConfigurationService configurationService)

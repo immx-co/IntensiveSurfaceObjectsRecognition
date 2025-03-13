@@ -18,6 +18,8 @@ namespace ObjectsRecognitionUI.ViewModels
 
         public ReactiveCommand<Unit, Unit> GoEventJournalWindow { get; }
 
+        public ReactiveCommand<Unit, Unit> GoVideoEventJournalWindow { get; }
+
         public ReactiveCommand<Unit, Unit> GoConfiguration { get; }
 
         public NavigationViewModel(IScreen screenRealization, IServiceProvider serviceProvider)
@@ -28,6 +30,7 @@ namespace ObjectsRecognitionUI.ViewModels
             GoMainWindow = ReactiveCommand.Create(NavigateToMainWindow);
             GoConfiguration = ReactiveCommand.Create(NavigateToConfigurationWindow);
             GoEventJournalWindow = ReactiveCommand.Create(NavigateToEventJournalWindow);
+            GoVideoEventJournalWindow = ReactiveCommand.Create(NavigateToVideoEventJournalWindow);
 
             Router.Navigate.Execute(_serviceProvider.GetRequiredService<MainViewModel>());
         }
@@ -42,6 +45,12 @@ namespace ObjectsRecognitionUI.ViewModels
         {
             CheckDisposedCancelletionToken();
             Router.Navigate.Execute(_serviceProvider.GetRequiredService<EventJournalViewModel>());
+        }
+
+        private void NavigateToVideoEventJournalWindow()
+        {
+            CheckDisposedCancelletionToken();
+            Router.Navigate.Execute(_serviceProvider.GetRequiredService<VideoEventJournalViewModel>());
         }
 
         private void NavigateToConfigurationWindow()
