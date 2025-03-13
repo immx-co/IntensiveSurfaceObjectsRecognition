@@ -18,17 +18,17 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
     #region Private Fields
     private Dictionary<string, AvaloniaList<string>> _eventResults;
 
-    private AvaloniaList<string> _currentEventResults;
+    private AvaloniaList<string> _currentEventResults = new();
 
-    private AvaloniaList<string> _imageNames;
+    private AvaloniaList<string> _imageNames = new();
 
     private string? _selectedImageName;
 
-    private AvaloniaList<RectItem> _rectItems;
+    private AvaloniaList<RectItem> _rectItems = new();
 
     private Avalonia.Media.Imaging.Bitmap _currentImage;
 
-    private Dictionary<string, Avalonia.Media.Imaging.Bitmap> _imagesDictionary;
+    private Dictionary<string, Avalonia.Media.Imaging.Bitmap> _imagesDictionary = new();
 
     private RectItemService _rectItemService;
 
