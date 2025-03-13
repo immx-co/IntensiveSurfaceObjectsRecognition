@@ -701,12 +701,6 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Event Journal Methods
-    private void AddInEventJournal(IStorageFile file, AvaloniaList<string> detectionList)
-    {
-        _eventJournalViewModel.EventResults.Add(file.Name, detectionList);
-        _eventJournalViewModel.ImageNames.Add(file.Name);
-    }
-
     private void InitEventJournal()
     {
         var dictioanary = new Dictionary<string, Bitmap>();
