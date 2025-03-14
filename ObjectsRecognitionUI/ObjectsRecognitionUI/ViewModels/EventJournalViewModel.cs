@@ -15,7 +15,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading;
@@ -26,19 +25,21 @@ namespace ObjectsRecognitionUI.ViewModels;
 public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
 {
     #region Private Fields
-    private IServiceProvider _serviceProvider;
+    private Dictionary<string, AvaloniaList<string>> _eventResults;
 
-    private AvaloniaList<string> _eventResults;
+    private AvaloniaList<string> _currentEventResults = new();
 
-    private AvaloniaList<RectItem> _rectItems;
+    private AvaloniaList<string> _imageNames = new();
+
+    private string? _selectedImageName;
+
+    private AvaloniaList<RectItem> _rectItems = new();
 
     private Avalonia.Media.Imaging.Bitmap _currentImage;
 
-    private Dictionary<string, Avalonia.Media.Imaging.Bitmap> _imagesDictionary;
+    private Dictionary<string, Avalonia.Media.Imaging.Bitmap> _imagesDictionary = new();
 
     private RectItemService _rectItemService;
-
-    private string _title;
 
     private string _selectedEventResult;
 
@@ -57,10 +58,22 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
     #endregion
 
     #region Properties
-    public AvaloniaList<string> EventResults
+    public Dictionary<string, AvaloniaList<string>> EventResults
     {
         get => _eventResults;
         set => this.RaiseAndSetIfChanged(ref _eventResults, value);
+    }
+
+    public AvaloniaList<string> CurrentEventResults
+    {
+        get => _currentEventResults;
+        set => this.RaiseAndSetIfChanged(ref _currentEventResults, value);
+    }
+
+    public AvaloniaList<string> ImageNames
+    {
+        get => _imageNames;
+        set => this.RaiseAndSetIfChanged(ref _imageNames, value);
     }
 
     public string SelectedEventResult 
@@ -92,10 +105,14 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
         set => this.RaiseAndSetIfChanged(ref _imagesDictionary, value);
     }
 
-    public string Title
+    public string SelectedImageName
     {
-        get => _title;
-        set => this.RaiseAndSetIfChanged(ref _title, value);
+        get => _selectedImageName;
+        set
+        {
+            if (value != string.Empty && value != null) CurrentEventResults = EventResults[value];
+            this.RaiseAndSetIfChanged(ref _selectedImageName, value);
+        }
     }
 
     public AvaloniaList<LegendItem> LegendItems
@@ -103,37 +120,14 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
         get => _legendItems;
         set => this.RaiseAndSetIfChanged(ref _legendItems, value);
     }
-
-    public List<VideoItemModel> VideoItems
-    {
-        get => _videoItems;
-        set => this.RaiseAndSetIfChanged(ref _videoItems, value);
-    }
-
-    public VideoItemModel SelectedVideoItem
-    {
-        get => _selectedVideoItem;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _selectedVideoItem, value);
-
-            if (value != null)
-            {
-                DisplayVideoImages(value);
-            }
-        }
-    }
-
-    public bool IsVideoProcessing = false;
     #endregion
 
     #region Constructor
-    public EventJournalViewModel(IScreen screen, IServiceProvider serviceProvider, RectItemService rectItemService)
+    public EventJournalViewModel(IScreen screen, RectItemService rectItemService)
     {
         HostScreen = screen;
-        _serviceProvider = serviceProvider;
         _rectItemService = rectItemService;
-        _eventResults = new AvaloniaList<string>();
+        _eventResults = new Dictionary<string, AvaloniaList<string>>();
 
         LegendItems = new AvaloniaList<LegendItem>
         {
@@ -151,29 +145,11 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
     {
         Log.Information("Start render event journal image");
         Log.Debug("EventJournalViewModel.Render: Start");
-        
-        if (!IsVideoProcessing)
-        {
-            var result = ParseSelectedEventResult();
-            InitRectItem(result);
-            CurrentImage = ImagesDictionary[result.Name];
-            Title = result.Name;
-            Log.Debug("EventJournalViewModel.Render: Done; Title: {@Title}; Event Result: {@EventResult}", Title, result);
-        }
-        else
-        {
-            var result = ParseSelectedVideoEventResult();
-            var resultVideoInitRectItem = VideoInitRectItem(result);
-            if (resultVideoInitRectItem is null)
-            {
-                return;
-            }
-            var (currentImage, title) = resultVideoInitRectItem.Value;
-            CurrentImage = currentImage;
-            Title = title.ToString();
-            Log.Debug("EventJournalViewModel.Render: Done; Title: {@Title}; Event Result: {@VideoEventResult}", Title, result);
-        }
+        var result = ParseSelectedEventResult();
+        InitRectItem(result);
+        CurrentImage = ImagesDictionary[SelectedImageName];
         Log.Information("End render event journal image");
+        Log.Debug("EventJournalViewModel.Render: Done; Image Name: {@ImageName}; Event Result: {@EventResult}", SelectedImageName, result);
     }
 
     private void InitRectItem(EventResult eventResult)
@@ -187,52 +163,9 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
             Width = eventResult.Width,
             Height = eventResult.Height
         };
-        RectItems = [_rectItemService.InitRect(recognitionResult, ImagesDictionary[eventResult.Name])];
+
+        RectItems = [_rectItemService.InitRect(recognitionResult, ImagesDictionary[SelectedImageName])];
         Log.Debug("EventJournalViewModel.InitRectItem: Done; Recognition Result: {@RecognitionResult}", recognitionResult);
-    }
-
-    private (Avalonia.Media.Imaging.Bitmap, Guid)? VideoInitRectItem(VideoEventResult videoEventResult)
-    {
-        Log.Debug("EventJournalViewModel.VideoInitRectItem: Start");
-        using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
-
-        var dbFrame = db.Frames.Where(frame => frame.FrameId == videoEventResult.Name).FirstOrDefault();
-
-        if (dbFrame is null)
-        {
-            return null;
-        }
-
-        using var memoryStream = new MemoryStream(dbFrame.FrameData);
-        Avalonia.Media.Imaging.Bitmap frameBitmap = new Avalonia.Media.Imaging.Bitmap(memoryStream);
-
-        //RecognitionResult recognitionResult = new RecognitionResult()
-        //{
-        //    ClassName = videoEventResult.Class,
-        //    X = videoEventResult.X,
-        //    Y = videoEventResult.Y,
-        //    Width = videoEventResult.Width,
-        //    Height = videoEventResult.Height
-        //};
-
-        RectItem recognitionResult = new RectItem
-        {
-            X = videoEventResult.X,
-            Y = videoEventResult.Y,
-            Width = videoEventResult.Width,
-            Height = videoEventResult.Height,
-            Color = videoEventResult.Class switch
-            {
-                "human" => "Green",
-                "wind/sup-board" => "Red",
-                "bouy" => "Blue",
-                "sailboat" => "Yellow",
-                "kayak" => "Purple"
-            }
-        };
-        RectItems = [recognitionResult];
-
-        return (frameBitmap, dbFrame.FrameId);
     }
 
     private EventResult ParseSelectedEventResult()
@@ -240,98 +173,25 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
         var values = SelectedEventResult.Split("; ");
         return new EventResult
         {
-            Name = values[0].Split(": ")[1],
-            Class = values[1].Split(": ")[1],
-            X = Convert.ToInt32(values[2].Split(": ")[1]),
-            Y = Convert.ToInt32(values[3].Split(": ")[1]),
-            Width = Convert.ToInt32(values[4].Split(": ")[1]),
-            Height = Convert.ToInt32(values[5].Split(": ")[1])
-        };
-    }
-
-    private VideoEventResult ParseSelectedVideoEventResult()
-    {
-        var values = SelectedEventResult.Split("; ");
-        return new VideoEventResult
-        {
-            Name = Guid.Parse(values[0].Split(": ")[1]),
-            Class = values[1].Split(": ")[1],
-            X = Convert.ToInt32(values[2].Split(": ")[1]),
-            Y = Convert.ToInt32(values[3].Split(": ")[1]),
-            Width = Convert.ToInt32(values[4].Split(": ")[1]),
-            Height = Convert.ToInt32(values[5].Split(": ")[1])
+            Class = values[0].Split(": ")[1],
+            X = Convert.ToInt32(values[1].Split(": ")[1]),
+            Y = Convert.ToInt32(values[2].Split(": ")[1]),
+            Width = Convert.ToInt32(values[3].Split(": ")[1]),
+            Height = Convert.ToInt32(values[4].Split(": ")[1])
         };
     }
 
     private void Clear()
     {
         CurrentImage = null;
-        Title = String.Empty;
+        SelectedImageName = String.Empty;
         RectItems = null;
     }
+
     #endregion
 
-    #region Private Video Methods
-    private async Task DisplayVideoImages(VideoItemModel videoItem)
-    {
-        Log.Debug("EventJournalViewModel.DisplayVideoImages: Start");
-        EventResults = new();
-        Guid videoGuid = videoItem.VideoId;
-
-        using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
-        var dbVideo = db.Videos
-            .Where((entity) => entity.VideoId == videoGuid)
-            .Include((entity) => entity.Frames)
-            .FirstOrDefault();
-
-        if (dbVideo is null)
-        {
-            return;
-        }
-
-        List<Frame> dbFrames = dbVideo.Frames;
-
-        List<Avalonia.Media.Imaging.Bitmap> framesBitmap = new List<Avalonia.Media.Imaging.Bitmap>();
-
-        foreach (Frame dbFrame in dbFrames)
-        {
-            using var memoryStream = new MemoryStream(dbFrame.FrameData);
-            framesBitmap.Add(new Avalonia.Media.Imaging.Bitmap(memoryStream));
-
-            var currentDetections = await db.Detections.Where(d => d.FrameId == dbFrame.FrameId).ToListAsync();
-
-            for (int idx = 0; idx < currentDetections.Count; idx++) 
-            {
-                Detection det = currentDetections[idx];
-                string eventLine = $"Name: {det.FrameId}; ClassName: {det.ClassName}; x: {det.X}; y: {det.Y}; width: {det.Width}; height: {det.Height}";
-                EventResults.Add(eventLine);
-            }
-        }
-    }
-    #endregion
-
-    #region Public Methods
-    public async Task FillComboBox()
-    {
-        Log.Debug("EventJournalViewModel.FillComboBox: Start");
-        using ApplicationContext db = _serviceProvider.GetRequiredService<ApplicationContext>();
-
-        var videos = await db.Videos.Select((entity) => new VideoItemModel
-        {
-            VideoId = entity.VideoId,
-            VideoName = entity.VideoName
-        }).ToListAsync();
-
-        VideoItems = videos;
-        SelectedVideoItem = VideoItems[0];
-    }
-    #endregion
-
-    #region Classes
     private class EventResult
     {
-        public string Name { get; set; }
-
         public string Class { get; set; }
 
         public int X { get; set; }
@@ -342,22 +202,4 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
 
         public int Height { get; set; }
     }
-
-    private class VideoEventResult : EventResult
-    {
-        public Guid Name { get; set; }
-    }
-
-    public class VideoItemModel
-    {
-        public Guid VideoId { get; set; }
-
-        public string VideoName { get; set; }
-
-        public override string ToString()
-        {
-            return VideoName;
-        }
-    }
-    #endregion
 }

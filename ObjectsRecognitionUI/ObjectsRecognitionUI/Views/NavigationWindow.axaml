@@ -8,7 +8,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="ObjectsRecognitionUI.Views.NavigationWindow"
         Title="Surface Objects Recognition Application"
-				MinHeight="900"
+		MinHeight="900"
         MinWidth="1600"
 		x:DataType="vm:NavigationViewModel"
 		Icon="/Assets/avalonia-logo.ico">

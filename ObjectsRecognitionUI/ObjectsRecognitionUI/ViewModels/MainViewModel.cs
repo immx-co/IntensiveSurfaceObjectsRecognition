@@ -76,6 +76,8 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     private AvaloniaList<LegendItem> _legendItems;
 
     private int _currentNumberOfFrame;
+
+    private List<AvaloniaList<string>> _detections;
     #endregion
 
     #region Public Fields
@@ -221,18 +223,17 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         Log.Information("Start sending image file");
         Log.Debug("MainViewModel.OpenImageFileAsync: Start");
-        _eventJournalViewModel.IsVideoProcessing = false;
-        _eventJournalViewModel.EventResults = new AvaloniaList<string>();
+
         try
         {
             var file = await _filesService.OpenImageFileAsync();
             if (file != null)
-            {
-                ResetUI();
+            {       
                 await InitImagesAsync(new List<IStorageFile> { file });
                 CanSwitchImages = false;
                 _isVideoSelected = false;
                 FrameTitle = String.Empty;
+                InitEventJournal();
             }
         }
         finally
@@ -248,18 +249,17 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         Log.Information("Start sending folder");
         Log.Debug("MainViewModel.OpenFolderAsync: Start");
-        _eventJournalViewModel.IsVideoProcessing = false;
-        _eventJournalViewModel.EventResults = new AvaloniaList<string>();
+
         try
         {
             var files = await _filesService.OpenImageFolderAsync();
             if (files != null)
-            {
-                ResetUI();
+            {         
                 await InitImagesAsync(files);
                 CanSwitchImages = true;
                 _isVideoSelected = false;
                 FrameTitle = String.Empty;
+                InitEventJournal();
             }
         }
         catch
@@ -281,14 +281,12 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         Log.Information("Start sending video");
         Log.Debug("MainViewModel.OpenVideoAsync: Start");
-        _eventJournalViewModel.IsVideoProcessing = true;
         _videoEventJournalViewModel.EventResults = new AvaloniaList<string>();
         try
         {
             var file = await _filesService.OpenVideoFileAsync();
             if (file != null)
             {
-                ResetUI();
                 await InitFramesAsync(file);
                 CanSwitchImages = true;
                 _isVideoSelected = true;
@@ -326,6 +324,7 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         var itemsLists = new AvaloniaList<AvaloniaList<RectItem>>();
         var filesBitmap = new List<Bitmap>();
         int totalFiles = files.Count;
+        _detections = new();
 
         for (int idx = 0; idx < totalFiles; idx++)
         {
@@ -343,18 +342,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         _rectItemsLists = itemsLists;
         _imageFiles = files;
 
-        InitEventJournalVMImageDictionary();
-
         _currentNumberOfImage = 0;
         SetImage();
         Log.Debug("MainViewModel.InitImagesAsync: End");
-    }
-
-    private void InitEventJournalVMImageDictionary()
-    {
-        var dictioanary = new Dictionary<string, Bitmap>();
-        for(int i =0; i<_imageFiles.Count;i++) dictioanary.Add(_imageFiles[i].Name, _imageFilesBitmap[i]);
-        _eventJournalViewModel.ImagesDictionary = dictioanary;
     }
 
     private async Task<AvaloniaList<RectItem>> GetImageDetectionResultsAsync(IStorageFile file, Bitmap fileBitmap)
@@ -362,14 +352,15 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
         Log.Debug("MainViewModel.GetImageDetectionResultsAsync: Start");
         List<RecognitionResult> detections = await GetImageRecognitionResultsAsync(file);
         var items = new AvaloniaList<RectItem>();
+        var detectionList = new AvaloniaList<string>();
         foreach (RecognitionResult det in detections)
         {
             try
             {
                 items.Add(_rectItemService.InitRect(det, fileBitmap));
                 await SaveRecognitionResultAsync(det);
-                string eventLine = $"Name: {file.Name}; class: {det.ClassName}; x: {det.X}; y: {det.Y}; width: {det.Width}; height: {det.Height}";
-                _eventJournalViewModel.EventResults.Add(eventLine);
+                string eventLine = $"Class: {det.ClassName}; x: {det.X}; y: {det.Y}; width: {det.Width}; height: {det.Height}";
+                detectionList.Add(eventLine);
             }
             catch (Exception ex)
             {
@@ -378,6 +369,9 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
             }
         }
         Log.Debug("MainViewModel.GetImageDetectionResultsAsync: Done");
+
+        _detections.Add(detectionList);
+
         return items;
     }
 
@@ -781,6 +775,25 @@ public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
         var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandard(caption, message);
         messageBoxStandardWindow.ShowAsync();
+    }
+    #endregion
+
+    #region Event Journal Methods
+    private void InitEventJournal()
+    {
+        var dictioanary = new Dictionary<string, Bitmap>();
+        AvaloniaList<string> names = new();
+        var eventResults = new Dictionary<string, AvaloniaList<string>>();
+        for (int i = 0; i < _imageFiles.Count; i++)
+        {
+            dictioanary.Add(_imageFiles[i].Name, _imageFilesBitmap[i]);
+            names.Add(_imageFiles[i].Name);
+            eventResults.Add(_imageFiles[i].Name, _detections[i]);
+        }
+        _eventJournalViewModel.ImagesDictionary = dictioanary;
+        _eventJournalViewModel.ImageNames = names;
+        _eventJournalViewModel.EventResults = eventResults;
+        _eventJournalViewModel.SelectedImageName = _eventJournalViewModel.ImageNames[0];
     }
     #endregion
 
