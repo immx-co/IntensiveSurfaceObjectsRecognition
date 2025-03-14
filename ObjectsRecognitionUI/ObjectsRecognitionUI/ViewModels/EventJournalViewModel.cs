@@ -43,10 +43,6 @@ public class EventJournalViewModel : ReactiveObject, IRoutableViewModel
 
     private string _selectedEventResult;
 
-    private List<VideoItemModel> _videoItems;
-
-    private VideoItemModel _selectedVideoItem;
-
     private AvaloniaList<LegendItem> _legendItems;
     #endregion
 
